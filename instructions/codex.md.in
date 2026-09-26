@@ -1,0 +1,312 @@
+@/mnt/main0/home/steve.chan/.codex/RTK.md
+
+Never modify `RTK.md`; it is tool guidance, not a home for operational rules.
+
+For Python symbol-aware navigation (definitions, references, implementations,
+and call hierarchy), prefer the ty LSP over `grep`/`rg` when the LSP is
+available and can answer the question. Use text search for literals, configs,
+non-Python files, broad discovery, or when the LSP cannot provide the result.
+
+Exclude `.pixi/` from filesystem and text searches by default, including with
+`find`, `rg`, `grep`, and similar tools. Search it when intentionally inspecting
+the Pixi environment or its installed packages, such as locating third-party
+package source, examining site-packages, or debugging environment setup.
+
+Never run a blanket recursive text or filename search over the home directory
+or filesystem root, such as `rg`, `grep`, or `find` rooted at `/`, `~`, or
+`$HOME`, without first requesting explicit approval. Narrow searches to known
+project or task-relevant subdirectories. Read a known path directly instead of
+searching to locate it.
+
+## Instruction and configuration changes
+
+- Use `$maintain-agent-instructions` when adding, fixing, or clarifying an
+  operational rule or changing instruction or configuration policy. It owns
+  behavior boundaries, source-of-truth selection, incident replay,
+  generalization, and routing validation.
+
+## Verification
+
+- In Pixi projects, default to `pixi run --frozen ...`; run pytest as
+  `pixi run --frozen pytest ...`.
+- Use `$choose-compute-execution` before CPU-only tests or jobs beyond a quick
+  single-process check, when running selected marked tests, or before allocating
+  GPUs for tests.
+- Use `$verify-technical-evidence` for causal diagnoses, exhaustive claims,
+  consequential findings from other reviewers or agents, and numerical,
+  performance, capacity, or environment-dependent conclusions.
+- Use `$grill-change` before removing or materially changing an established
+  workaround, guard, synchronization, reset, fallback, compatibility path, or
+  apparently redundant operation, and before narrowing or widening an
+  established parser, matcher, regex, or decoder for external input. It owns
+  historical-intent recovery, accepted-input and trust-boundary analysis, and
+  the evidence required to show that the earlier invariant is obsolete or the
+  newly accepted input space is safe.
+- Use `$prove-change` when the user requests direct before/after proof, a
+  behavior-preservation claim is disputed or high-risk, or a diagnosis requires
+  comparison with an authoritative base.
+- Use `$verify-behavioral-tests` when adding or reviewing regression,
+  integration, coverage, mutation, stateful, or configuration-driven tests, or
+  when proving non-ML persistent-state behavior.
+- Use `$verify-ml-training-changes` when changing, diagnosing, explaining, or
+  verifying gradients, tensor mutation or cardinality, repeated model
+  execution, checkpoint resume, training performance or telemetry, or
+  distributed behavior.
+- When several routed skills apply, combine them by ownership: use
+  `$design-python-code` for production structure, `$verify-behavioral-tests`
+  for test evidence, `$verify-ml-training-changes` for training-specific
+  runtime semantics, and `$design-diagnostic-visualizations` for diagnostic
+  encoding and interpretation. Do not let one suppress another's applicable
+  checks.
+- Run the smallest decisive checks appropriate to the changed behavior and any
+  required repository checks. Once they pass, do not broaden or repeat them
+  unless code or configuration changed after the result, a failure invalidated
+  it, or a specific unresolved concern requires another check.
+- Verify the final result before reporting completion, separating evidence that
+  the new behavior works from regression checks. Do not rerun an unchanged
+  passing check solely for handoff.
+- Scale checks to the edit surface: use runtime tests for runtime changes, the
+  applicable checker for directive-only changes, and a syntax or parse check for
+  prose-only changes.
+- Never bypass Git hooks with `--no-verify`, `SKIP`, hook-configuration
+  changes, or an equivalent workaround. If a hook fails, fix the failure in
+  its owning commit and rerun the real hook; if that cannot be done safely,
+  stop and report the blocker instead of committing.
+
+## ML experiments and reporting
+
+- Use `$run-slurm-wandb-experiments` for W&B-backed Slurm training experiments
+  and Slurm-backed GPU verification.
+- Use `$wandb-research-report` when creating or updating a W&B study report,
+  comparison chart, research narrative, or derived trajectory.
+- Ask before starting long training runs, large downloads, W&B runs, cloud
+  jobs, uploading large artifacts or checkpoints to remote storage, or bulk
+  paid API calls.
+
+## Diagnostic visualizations
+
+- Use `$design-diagnostic-visualizations` when creating or reviewing diagnostic
+  plots, alert attachments, dashboards, heatmaps, or dense entity-by-metric
+  visualizations.
+
+## Shell
+
+- For a requested deletion of a Git-tracked path, first inspect its exact
+  status and diff for uncommitted content, then use `git rm -- <path>`. Git
+  history preserves committed content; do not route tracked files through
+  `/mnt/main0/.vast_trash`.
+- For an untracked or non-versioned path, first confirm its exact scope and
+  move it into `/mnt/main0/.vast_trash` under a collision-free name. If that
+  destination rejects the move, delete the same exact target normally; do not
+  broaden or recompute the target between attempts. Treat the trash as
+  temporary, not archival; content that must be retained needs an explicit
+  durable destination.
+- Test bootstrap and PATH behavior with `env -i`; a new interactive shell
+  inherits exported state and is not a clean environment.
+- For a temporary mutation or bisect probe, assert that the change applied,
+  restore it on every exit path, and verify the final Git status. Do not start
+  when unrelated work cannot be preserved.
+
+## Code prose
+
+- Before creating a source file, read the applicable project style rules and
+  do not add template boilerplate unless those rules permit it. Verify the
+  final diff for prohibited constructs.
+- When documenting a design chosen over a familiar simpler alternative, state
+  the decisive reason that alternative is insufficient, not only the chosen
+  mechanism.
+- Default to no comment. Keep only a non-obvious constraint, invariant,
+  workaround, derivation, or decision that a fluent reader cannot recover from
+  the code.
+- Treat standard domain preconditions implied by an API, type, or primitive as
+  recoverable by a fluent reader. Document them only when the code imposes a
+  narrower or surprising local requirement.
+- Comment intentionally discarded or apparently redundant work when its purpose
+  is to preserve observable state, RNG, or ordering; exercise idempotence or
+  retry safety; or enforce another non-obvious invariant.
+- Document non-obvious configuration choices at the setting that owns them.
+  In particular, explain a selected performance boundary or bucket, and the
+  cost and correctness consequence of synchronization, buffering, or another
+  runtime tradeoff that a reader cannot infer from the value alone.
+- When refactoring, retain or relocate a source or specification citation when
+  it explains an invariant that remains true; remove it only when it no longer
+  describes the current code.
+- Describe the code as it stands. Remove edit history, diff-relative narration,
+  stale specifics, transient branch/PR references, and comments that restate the
+  next line.
+- When revising source prose, audit identifiers before finalizing. Replace a
+  bare snake_case or camelCase name from the surrounding implementation with a
+  domain term unless readers need it to use a documented external API or
+  contract.
+- Do not present an adjacent operation or its immediately visible consequence
+  as rationale. When a comment guards a future change, lead with the change
+  trigger and required companion action, not a description of the current
+  mechanism. If a comment already captures the non-obvious invariant, keep it
+  unchanged; when only a label or step number becomes stale, remove only that
+  stale text unless the prose has a material accuracy defect.
+- For ordering or synchronization comments, state only the non-local
+  postcondition that following code may rely on, such as which participants
+  must reach a point before another can continue. Omit local effects already
+  apparent from the adjacent operation. Name the specific operation that
+  establishes the guarantee when a generic reference would be ambiguous, but
+  mention its internal synchronization mechanism only when that mechanism is
+  itself a non-obvious, load-bearing constraint.
+- When variants, including authority/fallback paths, have different observable
+  outputs, document each branch's contract instead of promoting one variant's
+  behavior to an umbrella claim. For a fallback, name the primary authority,
+  trigger, limited effect, and any operation it cannot authorize.
+- Keep docstrings to a direct summary plus a short why only when the why passes
+  the same non-obviousness test. Leave existing correct prose untouched unless
+  the code change makes it inaccurate.
+- Make a docstring's why state the durable constraint and consequence a caller
+  needs, not transient investigation history. Keep environment or benchmark
+  detail only when it establishes a supported boundary or rules out a familiar
+  alternative.
+- Match an existing Python file's majority docstring convention when editing
+  it. For a newly created file, or one with no established convention, use
+  modern Google-style docstrings (`Args:`, `Returns:`, and `Raises:` only when
+  they add useful contract information). Do not default a new file to NumPy
+  parameter sections; do not add empty or self-evident sections merely to
+  satisfy the style.
+- When a comment only decodes an unclear local name and renaming does not break
+  a supported interface, prefer the clearer name.
+- Treat agent instruction files such as `AGENTS.md`, `CLAUDE.md`, and `SKILL.md`
+  as operational configuration, not documentation. Do not use `$polish-docs`
+  for targeted rule changes.
+- Use `$polish-docs` for a branch-wide documentation, docstring, or comment pass.
+
+## Code
+
+- Implement only behavior required by current supported consumers. Keep
+  responsibilities narrow and real variation points local so a concrete
+  new consumer can add an implementation without changing unrelated core
+  logic. Do not add unused modes, flags, abstractions, compatibility
+  paths, or tests for hypothetical customers. Extensibility means the
+  next concrete case is a local addition, not that its behavior is built
+  in advance.
+<!-- include: implementation.md -->
+- Use `$design-python-code` when creating, refactoring, or reviewing Python
+  implementation structure, helper placement, configuration states, or typed
+  interfaces.
+- Do not introduce `from __future__ import annotations` into new or touched
+  Python files unless the project explicitly requires it.
+- Branches over open sets must reject unmatched cases instead of silently doing
+  nothing. When extracting reusable logic, promote call-site preconditions into
+  explicit checks.
+- Make stateful effects part of a helper's name or contract. Do not hide RNG
+  advancement, cache mutation, counter updates, or collectives behind an
+  apparent pure transformation.
+- Establish each policy or invariant at one validated source of truth; derive
+  its masks, selections, scaling, and control flow from that source rather than
+  recomputing it independently.
+- Prefix new environment variables for tools we own and check the wrapped tool's
+  reserved namespace.
+- Write important deferred work as `# TODO(s22chan): ...`.
+- Never expose or commit secrets. Shell command text is logged, so never place
+  secrets in command arguments.
+
+## Git and review prose
+
+- Never run `gh`; describe the PR title/body/branch for the user to submit in the
+  GitHub web UI.
+- Stage explicit files only; never use `git add -A` or `git add .`.
+- Use `$polish-commits` whenever creating or reviewing a commit, reviewing a
+  commit series or branch-history structure, or rewriting commit messages or
+  history. It owns repository convention discovery, commit narrative, rewrite
+  previews, recovery, rebase, and range-diff verification.
+- Use `$integrate-upstream-refactors` when resolving rebase or merge conflicts,
+  or when replayed work must adopt upstream structural changes.
+- PR descriptions lead with the takeaway and reviewer-visible changes; point to
+  commit history for detailed evidence instead of repeating it.
+- In third-party prose, omit conversational rebuttals and negative results that
+  are true by construction. Name a rejected alternative only when that audience
+  might plausibly consider it.
+- Never force-push without explicit approval.
+
+## Working style
+
+- Use `$grill-change` for skeptical review of a branch, patch, proposed fix,
+  review claim, or sign-off evidence. For every multi-finding audit, keep a
+  tasklist with severity, owner, and disposition, and reconcile every item
+  before reporting the review addressed.
+- Assume a senior engineer fluent in the stack. Surface assumptions, tradeoffs,
+  evidence, and uncertainty; skip basic definitions.
+- Do not expand into unrequested scope. Suggest adjacent work instead.
+- If the requested mechanism is not the best fit, explain the alternative and
+  tradeoff before proceeding, but treat an explicit mechanism or destination as
+  a constraint. When a request cites a job, run, incident, or example and
+  changes a selector, filter, classifier, or exclusion policy, first state its
+  semantic inclusion and exclusion contract. The cited instance defines that
+  contract only when the user explicitly limits scope to its ID or names its
+  mechanism or field; otherwise its implementation details are evidence, not
+  the predicate. Enumerate distinct known producer paths from the authoritative
+  interface and classify each as included or excluded. Use a field as the
+  predicate only when its documented semantics express that contract across
+  every included producer. Exercise one included and one nearby excluded path
+  through the shipped selector. If the requested category cannot distinguish
+  discovered producer paths, ask before editing. Do not include paths outside
+  the stated semantic contract.
+- In reports, foreground measured findings and decisions. Omit expected,
+  invariant protocol controls unless they are needed to reproduce or interpret
+  the result, or are themselves the subject of the comparison.
+- Order multi-finding reports by operational consequence and action priority,
+  not by lane, proof freshness, or arrival order. Keep impact and likelihood
+  separate when they differ.
+- Name an isolated branch, test, or report from its own behavior. Do not name
+  an excluded sibling optimization merely to describe its absence.
+- When the agent and a concurrency slot are available, delegate broad read-only
+  codebase mapping to `explore-cheap`; keep a single known-location lookup
+  inline.
+- Give a delegated agent the smallest self-contained context that establishes
+  its task, scope, revision, constraints, and required result. When the spawn
+  interface permits, pass no prior turns or only the few turns the task needs;
+  do not fork a full long-running conversation merely for convenience.
+- Before handing a follow-up to a fresh session or agent, replace contextual
+  labels such as "this branch," "the overlay," or "the earlier fix" with the
+  exact ref, tip or commit, symbols, and raw observed behavior needed to
+  distinguish the target. Preserve the evidence needed to revisit the decision,
+  not the prior conclusion. If the available context does not resolve a label
+  whose interpretations would change the answer, enumerate them or ask instead
+  of selecting the most convenient repository match.
+- Scope each delegated agent to one resolved task and revision. Resume it only
+  to clarify or restate work already completed under that unchanged scope. When
+  the user changes the artifacts, revision, question, or requested outcome,
+  start a fresh agent instead of carrying the old transcript forward.
+- After changing an agent definition, model, or reasoning setting, use a newly
+  created session and agent and verify the effective setting before relying on
+  its cost or capability.
+- Classify a failed tool call before retrying. Do not retry a policy or
+  permission denial through alternate spelling or paths, and run an expected
+  negative guard probe at most once per input. After a missing path, worktree,
+  executable, or backend error, re-resolve that prerequisite before another
+  call. After malformed tool input, retry only with the minimal canonical call
+  shape.
+- After the same approach fails twice, stop and re-plan.
+- When multiple findings target one abstraction, their proposed fixes add
+  compensating branches, state, fallbacks, or post-processing, or repeated
+  review/fix rounds keep reopening the same decision surface, use
+  `$grill-change` to re-derive the combined remedy before implementation.
+- When evidence invalidates a proposal's premise, re-derive the proposal from
+  the remaining requirements instead of preserving its original shape.
+- Lead causal explanations with the mechanism, its consequence, and the
+  strongest supporting evidence. Include investigation detail only when the
+  user requests it or material uncertainty requires it.
+- When materially different designs remain, state the recommended design, its
+  main tradeoff, and the decisive disadvantage of the strongest alternative
+  before editing.
+- Describe concrete inputs, actions, and outcomes before applying a pattern or
+  smell label. Prefer literal mechanisms over metaphors that obscure behavior.
+- Run local shell processes expected to outlive the session under `nohup` with a
+  log and `disown`. Monitor them without a busy polling loop. For agent-owned
+  work expected to run 2–20 minutes, wait 2–3 minutes between status checks;
+  for longer work, use roughly 10% of the estimated remaining duration, capped
+  at 10 minutes. Use a shorter check only when completion is expected within
+  two minutes, the job emits a failure signal, or the user asks for status.
+- For an asynchronous job the agent starts (`srun`, `sbatch`, or `nohup`), do
+  not end the active request merely because the job is running. Monitor it to a
+  terminal state, inspect its declared output on success, and report the
+  completion or failure to the user. This does not apply to user-owned or
+  unrelated jobs; if the user explicitly asks for an interim handoff, report
+  the job identifier and the exact remaining completion check.
+- Before deleting interrupted-job output, inspect it for results not recorded
+  elsewhere.
