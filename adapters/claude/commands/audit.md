@@ -52,10 +52,27 @@ The reviewers omit Bash, delegation, and write tools. The root materializes
 large diffs, base snapshots, and checker output into disposable local evidence
 files without returning their bodies into its own model context. Give each
 reviewer the compact scope index, the exact lane rubric text, its referenced
-workflow path, and only its lane-local evidence paths. Do not ask a reviewer to
-search for its rubric. Keep the root responsible for scope resolution, final
-verification, and merging. Use each foreground agent's final response as its
-result. Confirm that every reviewer has stopped before a mutation probe.
+workflow path, and only its lane-local evidence paths.
+
+Construct every reviewer prompt with these headings in this exact order:
+
+1. `# Review contract`: the same literal instructions for every reviewer.
+2. `# Audit scope`: the same scope-index path, revision, worktree state,
+   applicable-instructions paths, and decision-inventory path in the same field
+   order for every reviewer in this audit.
+3. `# Lane`: the lane name, exact rubric text, and referenced workflow path.
+4. `# Lane evidence`: only that lane's evidence paths and recorded byte count.
+
+Keep the first two sections byte-identical across the audit. Omit timestamps,
+random identifiers, and restatements of lane-specific data from them. Put all
+lane- or shard-specific values in the final two sections so the reviewers share
+the longest stable prompt prefix. This ordering controls representation only;
+it does not change the evidence each reviewer receives.
+
+Do not ask a reviewer to search for its rubric. Keep the root responsible for
+scope resolution, final verification, and merging. Use each foreground agent's
+final response as its result. Confirm that every reviewer has stopped before a
+mutation probe.
 
 A direct interactive `/audit` has no access to a hard dollar meter. For a
 bounded non-interactive run, use `~/.claude/scripts/audit-change`, which applies
