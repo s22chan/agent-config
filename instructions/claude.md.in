@@ -6,73 +6,18 @@ conventions belong in each repo's `./CLAUDE.md`.
 **Precedence: explicit chat instructions > project `./CLAUDE.md` > this file >
 memories.**
 
-Never modify `RTK.md`; it is mechanical tool guidance, not a home for
-operational rules.
+## Claude workflow routing
 
-## Instruction and configuration changes
+Resolve workflow names in the shared instructions through the skill with the
+same name, except for these command adapters:
 
-- Use the `maintain-agent-instructions` skill when adding, fixing, or clarifying
-  an operational rule or changing instruction or configuration policy. It owns
-  behavior boundaries, source-of-truth selection, incident replay,
-  generalization, and routing validation.
+- `grill-change` -> `/grill`
+- `prove-change` -> `/prove`
+- `polish-docs` -> `/polish-docs`
+- `polish-commits` -> `/polish-commits`
+- `integrate-upstream-refactors` -> `/rebase-integrate`
 
-## Verification and correctness
-
-- Use the `verify-behavioral-tests` skill for regression, integration,
-  configuration-driven, mutation, stateful-lifecycle, or mock-heavy test work.
-- Use the `verify-ml-training-changes` skill for gradients, tensor mutation or
-  cardinality, repeated model execution, checkpoint resume, training telemetry
-  or performance, RNG-sensitive behavior, and distributed collectives.
-- Use the `choose-compute-execution` skill before CPU-only tests or jobs beyond
-  a quick single-process check.
-- Use the `verify-technical-evidence` skill for causal diagnoses, exhaustive
-  claims, consequential findings from reviews or agents, and numerical,
-  performance, capacity, or environment-dependent conclusions.
-- When several routed skills apply, combine them by ownership: use
-  `design-python-code` for production structure, `verify-behavioral-tests` for
-  test evidence, `verify-ml-training-changes` for training-specific runtime
-  semantics, and `design-diagnostic-visualizations` for diagnostic encoding and
-  interpretation. Do not let one suppress another's applicable checks.
-- Use `/grill` before removing or materially changing an established
-  workaround, guard, synchronization, reset, fallback, compatibility path, or
-  apparently redundant operation, and before narrowing or widening an
-  established parser, matcher, regex, or decoder for external input. It owns
-  historical-intent recovery, accepted-input and trust-boundary analysis, and
-  the evidence required to show that the earlier invariant is obsolete or the
-  newly accepted input space is safe.
-- Use `/prove` when the user requests direct before/after proof, a
-  behavior-preservation claim is disputed or high-risk, or a diagnosis requires
-  comparison with an authoritative base.
-- Scale checks to the edit surface. Run checks capable of catching faults the
-  edit could introduce: runtime tests for runtime changes, the checker for
-  directive-only changes, and a syntax/parse check for prose-only edits.
-- Run the smallest decisive checks appropriate to the changed behavior and any
-  required repository checks. Once they pass, do not broaden or repeat them
-  unless code or configuration changed after the result, a failure invalidated
-  it, or a specific unresolved concern requires another check.
-- Before reporting completion, verify the final result. Report behavior proof
-  separately from regression checks, and do not rerun an unchanged passing check
-  solely for handoff.
-- Never bypass Git hooks with `--no-verify`, `SKIP`, hook-configuration
-  changes, or an equivalent workaround. Fix the failure in its owning commit
-  and rerun the real hook; if that cannot be done safely, stop and report the
-  blocker instead of committing.
-
-## ML experiments and reporting
-
-- Use the `run-slurm-wandb-experiments` skill for W&B-backed Slurm training and
-  Slurm-backed GPU verification.
-- Use the `wandb-research-report` skill when creating or updating a W&B study
-  report, comparison chart, or derived trajectory.
-- Ask before long training runs, large downloads, W&B runs, cloud jobs,
-  uploading large artifacts or checkpoints to remote storage, or bulk paid API
-  calls.
-
-## Diagnostic visualizations
-
-- Use the `design-diagnostic-visualizations` skill when creating or reviewing
-  diagnostic plots, alert attachments, dashboards, heatmaps, or dense
-  entity-by-metric visualizations.
+@~/agent-config/instructions/common.md
 
 ## Communication
 
@@ -135,7 +80,7 @@ operational rules.
   strongest viable alternative and the decisive reason it is worse for the
   supported case.
 
-## Shell (zsh)
+## Shell (Bash)
 
 - For a requested deletion of a Git-tracked path, inspect its exact status and
   diff for uncommitted content, then use `git rm -- <path>`. Do not route tracked
@@ -145,12 +90,8 @@ operational rules.
   destination rejects the move, delete the same exact target normally; do not
   broaden or recompute the target between attempts. Treat the trash as
   temporary, not archival.
-- Bash-tool shells are non-interactive but still source the profile, so aliases
-  and shims apply. `cp`/`mv`/`rm` are `-i`; `diff`, `grep`, and `git` may be rtk
-  shims. A prompt in a backgrounded or long-running call is unanswerable and
-  hangs the command until timeout. Prefix the real binary with `command` in any
-  non-interactive script (`command cp`, `command diff`), and never let a cleanup
-  or restore step depend on an alias resolving as expected.
+- Bash-tool shells are non-interactive and non-login. Do not rely on profile
+  startup, aliases, or shell shims; invoke the required executable directly.
 - Do not assume an interpreter or tool is on `PATH` in a Bash-tool shell; bare
   `python` is often absent even where `pixi shell` would provide it. Resolve it
   explicitly (`command -v`, `python3`, `pixi run python`) rather than letting the
@@ -176,174 +117,26 @@ operational rules.
 - Test bootstrap and PATH behavior with `env -i`; a new interactive shell inherits
   exported state and is not a clean environment.
 
-## Code
 
-- Use the `design-python-code` skill when creating, refactoring, or reviewing
-  Python implementation structure, helper placement, configuration states, or
-  typed interfaces.
-<!-- include: implementation.md -->
-- Before creating a source file, read the applicable project style rules and do
-  not add template boilerplate unless those rules permit it. Verify the final
-  diff for prohibited constructs.
-- When documenting a design chosen over a familiar simpler alternative, state
-  the decisive reason that alternative is insufficient, not only the mechanism.
-- Default to no comment. Keep only a non-obvious constraint, invariant,
-  workaround, derivation, or decision a fluent reader cannot recover from the
-  code. Describe the current code, not edit history or the next line.
-- When revising source prose, audit identifiers before finalizing. Replace a
-  bare snake_case or camelCase name from surrounding implementation with a
-  domain term unless readers need it to use a documented external API or
-  contract.
-- Keep comments to one short clause and docstrings to a direct summary plus a
-  short why only when the why passes the same test. Outside a requested prose
-  pass, leave existing correct prose untouched unless the code change makes it
-  inaccurate. Use `/polish-docs` for a thorough pass.
-- When a comment guards a future change, lead with the trigger and required
-  companion action, not the current mechanism.
-- A docstring's "why" should state the durable constraint and consequence a
-  caller needs, not transient investigation narration. Retain benchmark or
-  environment detail when it defines a supported boundary or explains why a
-  familiar alternative is insufficient.
-- Scope factual claims to the evidence. Prefer a checkable version, artifact,
-  test, or issue when behavior depends on an environment; when the boundary is
-  not established, preserve the uncertainty instead of turning an observation
-  into a universal claim.
-- Put prose at the definition and scope it describes: line-specific comments next
-  to that line, cross-cutting rationale in the function/class docstring, and a
-  design justification on the definition that embodies the design.
-- When authority and fallback paths have different observable outputs, document
-  each branch's contract. For a fallback, name the primary authority, trigger,
-  limited effect, and any operation it cannot authorize.
-- Keep file headers to invocation, prerequisites, and tunable knobs. Explain a
-  magic number's derivation where it is used.
-- Treat agent instruction files such as `AGENTS.md`, `CLAUDE.md`, and `SKILL.md`
-  as operational configuration, not documentation. Do not use `/polish-docs`
-  for targeted rule changes.
-- Name sibling concepts consistently. When a comment only decodes an unclear
-  local name and renaming does not break a supported interface, prefer the
-  clearer name.
-- Keep diffs tight. Do not rename or reformat unrelated existing code; give a
-  worthwhile rename its own commit.
-- Do not introduce `from __future__ import annotations` into new or touched
-  Python files unless the project explicitly requires it.
-- Branches over open sets must reject unmatched cases instead of silently doing
-  nothing. When extracting reusable logic, promote call-site preconditions into
-  explicit checks.
-- Prefix new environment variables for tools we own and check the wrapped tool's
-  reserved namespace.
-- Write important deferred work as `# TODO(s22chan): ...`.
-- Never expose or commit secrets. Bash command text is logged, so never place
-  secrets in command arguments.
+## Claude tool use
+
 - For Python definitions, references, types, implementations, and call
   hierarchy, prefer the ty LSP when it can answer the question. Use text search
   for literals, configurations, non-Python files, broad discovery, or when the
   LSP cannot provide the result.
-
-## Git and commits
-
-- Never run `gh`. Provide the PR title/body/branch for submission in the GitHub
-  web UI.
-- Stage explicit files only; never use `git add -A` or `git add .`.
-- Use `/polish-commits` whenever creating or reviewing a commit, reviewing a
-  commit series or branch-history structure, or rewriting commit messages or
-  history. It owns repository-convention discovery, commit narrative, rewrite
-  previews, recovery, rebase, and range-diff verification.
-- Use `/rebase-integrate` when resolving rebase or merge conflicts, or when
-  replayed work must adopt upstream structural changes.
-- PR descriptions lead with the reviewer-visible takeaway and changes. Point to
-  commit history for detailed evidence instead of repeating it.
-- Never force-push without explicit approval.
-
-## Working style
-
-- Use `/grill` for skeptical review of a branch, patch, proposed fix, review
-  claim, or sign-off evidence. For every multi-finding audit, keep a task list
-  with severity, owner, and disposition, and reconcile every item before
-  reporting the review addressed.
-- Do not expand into unrequested scope. Suggest adjacent work instead.
-- If a requested mechanism is not the best fit, recommend the alternative and
-  its tradeoff before proceeding. When a request cites a job, run, incident, or
-  example and changes a selector, filter, classifier, or exclusion policy,
-  state its semantic inclusion and exclusion contract first. The cited instance
-  defines that contract only when the user explicitly limits scope to its ID or
-  names its mechanism or field; otherwise its implementation details are
-  evidence, not the predicate. Enumerate known producer paths from the
-  authoritative interface and classify each as included or excluded. Use a
-  field as the predicate only when its documented semantics express that
-  contract across every included producer. Exercise one included and one nearby
-  excluded path through the shipped selector. If the requested category cannot
-  distinguish discovered producer paths, ask before editing. Do not include
-  paths outside the stated semantic contract.
-- After the same approach fails twice, stop and re-plan.
-- When multiple findings target one abstraction, proposed fixes add
-  compensating branches, state, fallbacks, or post-processing, or repeated
-  review/fix rounds reopen the same decision, use `/grill` to re-derive the
-  combined remedy before implementation.
-- When evidence invalidates a proposal's premise, re-derive the proposal from
-  the remaining requirements instead of preserving its original shape.
-- Delegate broad read-only codebase mapping to `explore-cheap`; keep a single
-  known-location lookup inline. A known location includes tool/skill/agent
-  config conventions — skills at `~/.claude/skills/<name>/` or
-  `<repo>/.claude/skills/<name>/`, agents at `~/.claude/agents/<name>.md` —
-  read those paths directly in one call; do not `find`/`grep` the filesystem
-  to locate them.
-- Trust a named tool's own resolution (`Skill`, `ToolSearch`, a deferred tool
-  surfaced by name) instead of first locating or verifying the file it
-  resolves internally — that resolution runs live at call time, unlike a
-  memory-recalled path, which can be stale and does need an existence check.
-  If a tool call's own description already answers the question at hand (e.g.
-  whether it takes a given parameter), use that instead of reading its
-  backing file.
-- Give a subagent the smallest self-contained prompt that establishes its task,
-  scope, revision, constraints, and required result. Do not forward a
-  long-running conversation when a bounded evidence packet is sufficient.
-- Before handing work to a fresh session or subagent, replace contextual labels
-  such as "this branch," "the overlay," or "the earlier fix" with the exact ref,
-  tip or commit, symbols, and raw observed behavior needed to distinguish the
-  target. Preserve evidence needed to revisit the decision, not the prior
-  conclusion. If the context leaves interpretations that would change the
-  answer, enumerate them or ask instead of choosing a convenient repository
-  match.
-- Scope each subagent to one resolved task and revision. Resume it only to
-  clarify or restate work already completed under that unchanged scope. When
-  the user changes the artifacts, revision, question, or requested outcome,
-  start a fresh agent instead of carrying the old transcript forward.
-- After changing an agent definition, model, effort, or compaction setting, use
-  a newly created session and agent and verify the effective setting before
-  relying on its cost or capability.
-- Classify a failed tool call before retrying. Do not retry a policy or
-  permission denial through alternate spelling or paths, and run an expected
-  negative guard probe at most once per input. After a missing path, worktree,
-  executable, or search backend error, re-resolve that prerequisite before
-  another call. After malformed tool input, retry only with the minimal
-  canonical call shape.
-- Prefer an existing authoritative owner over a new file. Never create docs or
-  READMEs unless asked.
-- Ask rather than guess when ambiguity would materially change the result.
-  Respect an explicit mechanism or destination as a constraint. When the
-  phrasing may instead be an example and the choice changes scope or ownership,
-  state the interpretation before acting.
-- Use `.remember/` as the memory system, not `MEMORY.md`. Check later entries and
-  the full existing inventory before treating a remembered claim or idea as
-  current/new. Offer to persist reusable corrections.
-- Run jobs expected to outlive the session under `nohup` with a log and `disown`.
-  Monitor them without a busy polling loop. For agent-owned work expected to
-  run 2–20 minutes, wait 2–3 minutes between status checks; for longer work,
-  use roughly 10% of the estimated remaining duration, capped at 10 minutes.
-  Use a shorter check when completion is expected within two minutes, the job
-  emits a failure signal, or the user asks for status.
-- For an asynchronous job the agent starts (`srun`, `sbatch`, or `nohup`), stay
-  with the active request until it reaches a terminal state. Inspect its
-  declared output on success and report completion or failure. This does not
-  apply to user-owned or unrelated jobs; if the user requests an interim
-  handoff, report the job identifier and exact remaining completion check.
-- Before deleting interrupted-job output, inspect it for results not recorded
-  elsewhere.
+- For a known tool, skill, agent, or command path, read it directly rather than
+  searching the filesystem. User skills live at `~/.claude/skills/<name>/`,
+  project skills at `<repo>/.claude/skills/<name>/`, and agents at
+  `~/.claude/agents/<name>.md`.
+- Trust a named tool's live resolution through `Skill`, `ToolSearch`, or the
+  surfaced tool description. Read a backing file only when the live interface
+  does not answer the question or the remembered path itself is under review.
+- Use `.remember/` as the memory system, not `MEMORY.md`. Check later entries
+  and the full inventory before treating a remembered claim as current or new.
+  Offer to persist reusable corrections.
 
 ## Python (ML/research)
 
 - Use `pixi run --frozen` instead of `pixi run`.
 - Prefer `pathlib`, f-strings, and `logging` in library code while following the
   repo's environment, lint, and Slurm conventions.
-
-@RTK.md

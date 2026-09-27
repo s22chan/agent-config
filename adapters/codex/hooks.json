@@ -1,0 +1,18 @@
+{
+  "description": "Personal shell safety hooks.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"/mnt/main0/home/steve.chan/.codex/hooks/deny-guard.sh\"",
+            "timeout": 5,
+            "statusMessage": "Checking destructive shell command"
+          }
+        ]
+      }
+    ]
+  }
+}

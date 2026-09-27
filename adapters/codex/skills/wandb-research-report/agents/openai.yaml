@@ -1,0 +1,4 @@
+interface:
+  display_name: "W&B Research Report"
+  short_description: "Create evidence-backed W&B research reports"
+  default_prompt: "Use $wandb-research-report to create or update an evidence-backed W&B research report."

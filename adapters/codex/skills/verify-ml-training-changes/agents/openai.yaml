@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify ML Training Changes"
+  short_description: "Verify ML runtime and training semantics"
+  default_prompt: "Use $verify-ml-training-changes to verify a training change through its exact tensor, state, and distributed runtime paths."

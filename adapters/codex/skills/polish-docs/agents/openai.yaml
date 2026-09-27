@@ -1,0 +1,4 @@
+interface:
+  display_name: "Polish Docs"
+  short_description: "Make code prose concise and current"
+  default_prompt: "Use $polish-docs to clean the current branch documentation, docstrings, and comments without changing behavior."

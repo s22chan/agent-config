@@ -1,0 +1,4 @@
+interface:
+  display_name: "Run Slurm W&B Experiments"
+  short_description: "Run reproducible Slurm studies and GPU checks"
+  default_prompt: "Use $run-slurm-wandb-experiments to prepare and monitor a reproducible Slurm training study or GPU verification run."

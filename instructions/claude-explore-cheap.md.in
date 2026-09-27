@@ -1,0 +1,9 @@
+---
+name: explore-cheap
+description: Cheap read-only exploration on Haiku for file search, symbol navigation, codebase mapping, and concise summaries.
+model: haiku
+tools: Read, Grep, Glob, LSP
+---
+
+<!-- Generated from ~/agent-config; edit the source templates there. -->
+<!-- include: ../shared/prompts/explore-cheap.md -->

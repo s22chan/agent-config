@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create and Polish Commits"
+  short_description: "Create, review, and safely polish commits"
+  default_prompt: "Use $polish-commits to create or polish accurate, reviewer-facing commits safely."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Integrate Upstream Refactors"
+  short_description: "Reapply changes across upstream refactors"
+  default_prompt: "Use $integrate-upstream-refactors to preserve the change while adopting upstream structure."

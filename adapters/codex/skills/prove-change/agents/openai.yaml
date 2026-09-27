@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prove a Change"
+  short_description: "Compare base and new observable behavior"
+  default_prompt: "Use $prove-change to compare the current change with its base using direct evidence."

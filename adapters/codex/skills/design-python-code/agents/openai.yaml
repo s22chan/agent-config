@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Python Code"
+  short_description: "Keep Python design narrow and explicit"
+  default_prompt: "Use $design-python-code to refactor this Python implementation with narrow ownership and explicit state."

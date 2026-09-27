@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -17,39 +18,21 @@ def run_sync(home: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def create_remote(parent: Path, name: str) -> Path:
-    seed = parent / f"{name}-seed"
-    remote = parent / f"{name}.git"
-    subprocess.run(["git", "init", "-q", str(seed)], check=True)
-    subprocess.run(
-        ["git", "-C", str(seed), "config", "user.name", "test"], check=True
-    )
-    subprocess.run(
-        ["git", "-C", str(seed), "config", "user.email", "test@example.invalid"],
-        check=True,
-    )
-    (seed / ".gitignore").write_text("runtime/\n")
-    subprocess.run(["git", "-C", str(seed), "add", ".gitignore"], check=True)
-    subprocess.run(["git", "-C", str(seed), "commit", "-qm", "seed"], check=True)
-    subprocess.run(
-        ["git", "clone", "-q", "--bare", str(seed), str(remote)], check=True
-    )
-    return remote
-
-
 class SyncTest(unittest.TestCase):
-    def test_bootstrap_clones_tool_configs_and_syncs_shared_sources(self) -> None:
+    def test_bootstrap_installs_generated_files_without_owning_local_settings(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             home = root / "home"
             home.mkdir()
-            codex_remote = create_remote(root, "codex")
-            claude_remote = create_remote(root, "claude")
+            (home / ".codex").mkdir()
+            (home / ".claude").mkdir()
+            codex_settings = home / ".codex/config.toml"
+            claude_settings = home / ".claude/settings.json"
+            codex_settings.write_text("model = \"local\"\n")
+            claude_settings.write_text('{"model": "local"}\n')
             environment = {
                 "HOME": str(home),
                 "PATH": "/usr/bin:/bin",
-                "S22CHAN_CODEX_REPO": str(codex_remote),
-                "S22CHAN_CLAUDE_REPO": str(claude_remote),
             }
 
             result = subprocess.run(
@@ -61,11 +44,13 @@ class SyncTest(unittest.TestCase):
             )
 
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertTrue((home / ".codex/.git").is_dir())
-            self.assertTrue((home / ".claude/.git").is_dir())
+            self.assertFalse((home / ".codex/.git").exists())
+            self.assertFalse((home / ".claude/.git").exists())
+            self.assertEqual(codex_settings.read_text(), 'model = "local"\n')
+            self.assertEqual(claude_settings.read_text(), '{"model": "local"}\n')
             self.assertEqual(run_sync(home, "--check").returncode, 0)
 
-    def test_sync_renders_instructions_and_links_shared_files(self) -> None:
+    def test_sync_renders_instructions_and_materializes_shared_files(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             home = Path(directory)
             self.assertEqual(run_sync(home).returncode, 0)
@@ -73,23 +58,70 @@ class SyncTest(unittest.TestCase):
 
             codex = (home / ".codex/AGENTS.md").read_text()
             claude = (home / ".claude/CLAUDE.md").read_text()
-            shared = (ROOT / "instructions/implementation.md").read_text()
+            shared = (ROOT / "instructions/common.md").read_text()
             self.assertIn(shared, codex)
-            self.assertIn(shared, claude)
+            self.assertIn(
+                "@~/agent-config/instructions/common.md", claude
+            )
+            self.assertNotIn(shared, claude)
             self.assertTrue(codex.startswith("<!-- Generated from ~/agent-config"))
             self.assertTrue(claude.startswith("<!-- Generated from ~/agent-config"))
             self.assertNotIn("<!-- include:", codex)
             self.assertNotIn("<!-- include:", claude)
 
-            skill = home / ".codex/skills/design-diagnostic-visualizations/SKILL.md"
-            self.assertTrue(skill.is_symlink())
-            self.assertEqual(
-                skill.resolve(),
-                (
-                    ROOT
-                    / "shared/skills/design-diagnostic-visualizations/SKILL.md"
-                ).resolve(),
+            explorer = (home / ".claude/agents/explore-cheap.md").read_text()
+            explorer_policy = (
+                ROOT / "shared/prompts/explore-cheap.md"
+            ).read_text()
+            self.assertTrue(explorer.startswith("---\n"))
+            self.assertIn("model: haiku", explorer)
+            self.assertIn(explorer_policy, explorer)
+            self.assertNotIn("<!-- include:", explorer)
+
+            shared_root = ROOT / "shared"
+            shared_sources = sorted(
+                path for path in shared_root.rglob("*") if path.is_file()
             )
+            self.assertGreater(len(shared_sources), 2)
+            for source in shared_sources:
+                relative = source.relative_to(shared_root)
+                claude_target = home / ".claude" / relative
+                self.assertTrue(claude_target.is_symlink(), claude_target)
+                self.assertEqual(claude_target.resolve(), source.resolve())
+
+                codex_target = home / ".codex" / relative
+                if relative.parts[0] in {"prompts", "skills"}:
+                    self.assertTrue(codex_target.is_file(), codex_target)
+                    self.assertFalse(codex_target.is_symlink(), codex_target)
+                    self.assertEqual(codex_target.read_bytes(), source.read_bytes())
+                else:
+                    target = codex_target
+                    self.assertTrue(target.is_symlink(), target)
+                    self.assertEqual(target.resolve(), source.resolve())
+
+            for tool in ("codex", "claude"):
+                source = ROOT / "adapters" / tool
+                target_root = home / f".{tool}"
+                for adapter in (
+                    path for path in source.rglob("*") if path.is_file()
+                ):
+                    target = target_root / adapter.relative_to(source)
+                    self.assertEqual(target.read_bytes(), adapter.read_bytes())
+                    self.assertEqual(
+                        target.stat().st_mode & 0o777,
+                        adapter.stat().st_mode & 0o777,
+                    )
+
+            self.assertTrue((home / ".codex/.agent-config-manifest.json").is_file())
+            self.assertTrue((home / ".claude/.agent-config-manifest.json").is_file())
+
+    def test_shared_skills_leave_entrypoints_to_each_tool(self) -> None:
+        skills = ROOT / "shared/skills"
+        for skill in (path for path in skills.iterdir() if path.is_dir()):
+            self.assertFalse((skill / "SKILL.md").exists(), skill)
+            body = skill / "shared.md"
+            self.assertTrue(body.is_file(), body)
+            self.assertFalse(body.read_text().startswith("---\n"), body)
 
     def test_check_reports_drift(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -101,6 +133,51 @@ class SyncTest(unittest.TestCase):
             result = run_sync(home, "--check")
             self.assertEqual(result.returncode, 1)
             self.assertIn(f"out of date: {target}", result.stderr)
+
+    def test_check_reports_shared_link_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            self.assertEqual(run_sync(home).returncode, 0)
+            target = home / ".claude/hooks/deny-guard.sh"
+            target.unlink()
+            target.write_text("not the shared hook\n")
+
+            result = run_sync(home, "--check")
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(f"out of date: {target}", result.stderr)
+
+    def test_check_reports_shared_copy_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            self.assertEqual(run_sync(home).returncode, 0)
+            target = home / ".codex/skills/verify-technical-evidence/shared.md"
+            target.write_text("not the shared workflow\n")
+
+            result = run_sync(home, "--check")
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(f"out of date: {target}", result.stderr)
+
+    def test_sync_removes_only_files_recorded_as_stale(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            self.assertEqual(run_sync(home).returncode, 0)
+            stale = home / ".codex/obsolete-generated.txt"
+            unrelated = home / ".codex/local-notes.txt"
+            stale.write_text("obsolete\n")
+            unrelated.write_text("keep\n")
+            manifest = home / ".codex/.agent-config-manifest.json"
+            value = json.loads(manifest.read_text())
+            value["managed"].append("obsolete-generated.txt")
+            manifest.write_text(json.dumps(value, indent=2) + "\n")
+
+            result = run_sync(home, "--check")
+            self.assertEqual(result.returncode, 1)
+            self.assertIn(f"stale managed file: {stale}", result.stderr)
+
+            self.assertEqual(run_sync(home).returncode, 0)
+            self.assertFalse(stale.exists())
+            self.assertEqual(unrelated.read_text(), "keep\n")
+            self.assertEqual(run_sync(home, "--check").returncode, 0)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grill a Change"
+  short_description: "Challenge change assumptions before sign-off"
+  default_prompt: "Use $grill-change to challenge the current change before calling it ready."

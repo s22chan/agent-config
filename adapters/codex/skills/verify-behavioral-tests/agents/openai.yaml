@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Behavioral Tests"
+  short_description: "Design tests around observable behavior"
+  default_prompt: "Use $verify-behavioral-tests to design regression tests that fail on the user-visible behavior they protect."
