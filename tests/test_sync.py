@@ -1,9 +1,12 @@
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+
+import tomlkit
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +22,9 @@ def run_sync(home: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
 
 
 class SyncTest(unittest.TestCase):
-    def test_bootstrap_installs_generated_files_without_owning_local_settings(self) -> None:
+    def test_bootstrap_installs_preferences_without_replacing_local_settings(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             home = root / "home"
@@ -28,11 +33,25 @@ class SyncTest(unittest.TestCase):
             (home / ".claude").mkdir()
             codex_settings = home / ".codex/config.toml"
             claude_settings = home / ".claude/settings.json"
-            codex_settings.write_text("model = \"local\"\n")
-            claude_settings.write_text('{"model": "local"}\n')
+            codex_settings.write_text(
+                'model = "local"\n\n[projects."/local/project"]\n'
+                'trust_level = "trusted"\n'
+            )
+            claude_settings.write_text(
+                json.dumps(
+                    {
+                        "model": "local",
+                        "modelSettings": {"local": {"effortLevel": "low"}},
+                        "localOnly": True,
+                    }
+                )
+                + "\n"
+            )
+            uv = shutil.which("uv")
+            self.assertIsNotNone(uv)
             environment = {
                 "HOME": str(home),
-                "PATH": "/usr/bin:/bin",
+                "PATH": f"{Path(uv).parent}:/usr/bin:/bin",
             }
 
             result = subprocess.run(
@@ -46,8 +65,59 @@ class SyncTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse((home / ".codex/.git").exists())
             self.assertFalse((home / ".claude/.git").exists())
-            self.assertEqual(codex_settings.read_text(), 'model = "local"\n')
-            self.assertEqual(claude_settings.read_text(), '{"model": "local"}\n')
+            codex = tomlkit.parse(codex_settings.read_text()).unwrap()
+            self.assertEqual(codex["model"], "local")
+            self.assertEqual(
+                codex["projects"]["/local/project"]["trust_level"], "trusted"
+            )
+            self.assertEqual(codex["approval_policy"], "on-request")
+            self.assertTrue(codex["tui"]["fullscreen_transcript"])
+            claude = json.loads(claude_settings.read_text())
+            self.assertEqual(claude["model"], "local")
+            self.assertEqual(
+                claude["modelSettings"], {"local": {"effortLevel": "low"}}
+            )
+            self.assertTrue(claude["localOnly"])
+            self.assertEqual(claude["theme"], "dark")
+            self.assertEqual(claude["env"]["DISABLE_AUTOUPDATER"], "1")
+            self.assertEqual(run_sync(home, "--check").returncode, 0)
+
+    def test_sync_restores_owned_preferences_and_preserves_local_siblings(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            self.assertEqual(run_sync(home).returncode, 0)
+
+            codex_path = home / ".codex/config.toml"
+            codex = tomlkit.parse(codex_path.read_text())
+            codex["approval_policy"] = "never"
+            codex["tui"]["screen_reader_detection_done"] = True
+            codex["obsolete"] = True
+            codex_path.write_text(tomlkit.dumps(codex))
+            codex_manifest = home / ".codex/.agent-config-manifest.json"
+            manifest = json.loads(codex_manifest.read_text())
+            manifest["settings"].append(["obsolete"])
+            codex_manifest.write_text(json.dumps(manifest, indent=2) + "\n")
+
+            claude_path = home / ".claude/settings.json"
+            claude = json.loads(claude_path.read_text())
+            claude["theme"] = "light"
+            claude["localOnly"] = True
+            claude_path.write_text(json.dumps(claude, indent=4) + "\n")
+
+            result = run_sync(home, "--check")
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("approval_policy", result.stderr)
+            self.assertIn("theme", result.stderr)
+            self.assertIn("obsolete", result.stderr)
+
+            self.assertEqual(run_sync(home).returncode, 0)
+            codex = tomlkit.parse(codex_path.read_text()).unwrap()
+            self.assertEqual(codex["approval_policy"], "on-request")
+            self.assertTrue(codex["tui"]["screen_reader_detection_done"])
+            self.assertNotIn("obsolete", codex)
+            claude = json.loads(claude_path.read_text())
+            self.assertEqual(claude["theme"], "dark")
+            self.assertTrue(claude["localOnly"])
             self.assertEqual(run_sync(home, "--check").returncode, 0)
 
     def test_sync_renders_instructions_and_materializes_shared_files(self) -> None:

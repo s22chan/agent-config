@@ -1,6 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --frozen --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["tomlkit==0.15.1"]
+# ///
 
 import argparse
+from collections.abc import Mapping, MutableMapping
 import json
 import os
 from pathlib import Path
@@ -8,11 +13,14 @@ import re
 import sys
 import tempfile
 
+import tomlkit
+
 
 ROOT = Path(__file__).resolve().parent
 INSTRUCTIONS = ROOT / "instructions"
 SHARED = ROOT / "shared"
 ADAPTERS = ROOT / "adapters"
+PREFERENCES = ROOT / "preferences"
 INCLUDE = re.compile(r'^<!-- include: ([^/][^>]*) -->$')
 # Codex rejects instruction-support symlinks whose targets sit outside the
 # active workspace, so referenced assets must be copied under its config root.
@@ -24,6 +32,10 @@ MANIFEST_NAME = ".agent-config-manifest.json"
 TOOL_ADAPTERS = {
     ".codex": ADAPTERS / "codex",
     ".claude": ADAPTERS / "claude",
+}
+SETTINGS = {
+    ".codex": (Path("config.toml"), PREFERENCES / "codex.toml", "toml"),
+    ".claude": (Path("settings.json"), PREFERENCES / "claude.json", "json"),
 }
 TARGETS = {
     Path(".codex/AGENTS.md"): (INSTRUCTIONS / "codex.md.in", True),
@@ -104,6 +116,154 @@ def expected_copies(home: Path) -> dict[Path, Path]:
     return copies
 
 
+def load_preferences(tool: str) -> dict:
+    _, source, file_type = SETTINGS[tool]
+    if file_type == "toml":
+        return tomlkit.parse(source.read_text()).unwrap()
+    if file_type != "json":
+        raise ValueError(f"unsupported settings type: {file_type}")
+    value = json.loads(source.read_text())
+    if not isinstance(value, dict):
+        raise ValueError(f"preference source must contain an object: {source}")
+    return value
+
+
+def preference_paths(
+    value: Mapping, prefix: tuple[str, ...] = ()
+) -> list[tuple[str, ...]]:
+    paths = []
+    for key, child in value.items():
+        path = prefix + (key,)
+        if isinstance(child, Mapping) and child:
+            paths.extend(preference_paths(child, path))
+        else:
+            paths.append(path)
+    return paths
+
+
+def read_settings(path: Path, file_type: str):
+    if not path.is_file():
+        if file_type == "toml":
+            return tomlkit.document()
+        if file_type == "json":
+            return {}
+        raise ValueError(f"unsupported settings type: {file_type}")
+    if file_type == "toml":
+        return tomlkit.parse(path.read_text())
+    if file_type != "json":
+        raise ValueError(f"unsupported settings type: {file_type}")
+    value = json.loads(path.read_text())
+    if not isinstance(value, dict):
+        raise ValueError(f"settings file must contain an object: {path}")
+    return value
+
+
+def plain_value(value):
+    unwrap = getattr(value, "unwrap", None)
+    return unwrap() if unwrap is not None else value
+
+
+def get_path(settings: Mapping, path: tuple[str, ...]):
+    current = settings
+    for key in path:
+        if not isinstance(current, Mapping) or key not in current:
+            return False, None
+        current = current[key]
+    return True, plain_value(current)
+
+
+def set_path(
+    settings: MutableMapping,
+    path: tuple[str, ...],
+    value,
+    file_type: str,
+) -> bool:
+    found, current = get_path(settings, path)
+    if found and current == value:
+        return False
+    parent = settings
+    for key in path[:-1]:
+        if key not in parent:
+            if file_type == "toml":
+                parent[key] = tomlkit.table()
+            elif file_type == "json":
+                parent[key] = {}
+            else:
+                raise ValueError(f"unsupported settings type: {file_type}")
+        child = parent[key]
+        if not isinstance(child, MutableMapping):
+            parent_path = ".".join(path[:-1])
+            raise ValueError(f"cannot manage nested preference below {parent_path}")
+        parent = child
+    parent[path[-1]] = value
+    return True
+
+
+def remove_path(settings: MutableMapping, path: tuple[str, ...]) -> bool:
+    parents = []
+    current = settings
+    for key in path[:-1]:
+        if key not in current or not isinstance(current[key], MutableMapping):
+            return False
+        parents.append((current, key))
+        current = current[key]
+    if path[-1] not in current:
+        return False
+    del current[path[-1]]
+    for parent, key in reversed(parents):
+        if parent[key]:
+            break
+        del parent[key]
+    return True
+
+
+def dump_settings(settings, file_type: str) -> str:
+    if file_type == "toml":
+        return tomlkit.dumps(settings)
+    if file_type == "json":
+        return json.dumps(settings, indent=4) + "\n"
+    raise ValueError(f"unsupported settings type: {file_type}")
+
+
+def apply_preferences(home: Path, tool: str) -> None:
+    relative, _, file_type = SETTINGS[tool]
+    target = home / tool / relative
+    settings = read_settings(target, file_type)
+    preferences = load_preferences(tool)
+    expected_paths = set(preference_paths(preferences))
+    changed = False
+    for path in read_managed_settings(home, tool) - expected_paths:
+        changed |= remove_path(settings, path)
+    for path in preference_paths(preferences):
+        _, value = get_path(preferences, path)
+        changed |= set_path(settings, path, value, file_type)
+    if changed:
+        mode = target.stat().st_mode & 0o777 if target.is_file() else 0o600
+        replace_file(target, dump_settings(settings, file_type), mode)
+
+
+def check_preferences(home: Path, tool: str) -> list[str]:
+    relative, _, file_type = SETTINGS[tool]
+    target = home / tool / relative
+    try:
+        settings = read_settings(target, file_type)
+    except (json.JSONDecodeError, tomlkit.exceptions.ParseError, ValueError) as error:
+        return [f"invalid settings: {target}: {error}"]
+    errors = []
+    preferences = load_preferences(tool)
+    expected_paths = set(preference_paths(preferences))
+    for path in preference_paths(preferences):
+        found, actual = get_path(settings, path)
+        _, expected = get_path(preferences, path)
+        if not found or actual != expected:
+            errors.append(f"out of date preference: {target}: {'.'.join(path)}")
+    for path in read_managed_settings(home, tool) - expected_paths:
+        found, _ = get_path(settings, path)
+        if found:
+            errors.append(f"stale managed preference: {target}: {'.'.join(path)}")
+    return errors
+
+
 def expected_manifest(home: Path, tool: str) -> str:
     tool_root = home / tool
     managed = {
@@ -121,18 +281,25 @@ def expected_manifest(home: Path, tool: str) -> str:
         for target in expected_copies(home)
         if target.is_relative_to(tool_root)
     )
-    return json.dumps({"managed": sorted(managed)}, indent=2) + "\n"
+    settings = [list(path) for path in preference_paths(load_preferences(tool))]
+    return json.dumps(
+        {"managed": sorted(managed), "settings": settings}, indent=2
+    ) + "\n"
 
 
-def read_manifest(home: Path, tool: str) -> set[str]:
+def read_manifest(home: Path, tool: str) -> dict:
     path = home / tool / MANIFEST_NAME
     if not path.is_file():
-        return set()
+        return {}
     try:
         value = json.loads(path.read_text())
     except (json.JSONDecodeError, OSError):
-        return set()
-    managed = value.get("managed")
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def read_managed_files(home: Path, tool: str) -> set[str]:
+    managed = read_manifest(home, tool).get("managed")
     if not isinstance(managed, list):
         return set()
     paths = set()
@@ -143,6 +310,22 @@ def read_manifest(home: Path, tool: str) -> set[str]:
         if relative.is_absolute() or ".." in relative.parts:
             return set()
         paths.add(item)
+    return paths
+
+
+def read_managed_settings(home: Path, tool: str) -> set[tuple[str, ...]]:
+    managed = read_manifest(home, tool).get("settings")
+    if not isinstance(managed, list):
+        return set()
+    paths = set()
+    for item in managed:
+        if (
+            not isinstance(item, list)
+            or not item
+            or any(not isinstance(part, str) or not part for part in item)
+        ):
+            return set()
+        paths.add(tuple(item))
     return paths
 
 
@@ -176,12 +359,13 @@ def check(home: Path) -> list[str]:
         ):
             errors.append(f"out of date: {target}")
     for tool in TOOL_ADAPTERS:
+        errors.extend(check_preferences(home, tool))
         manifest = home / tool / MANIFEST_NAME
         expected = expected_manifest(home, tool)
         if not manifest.is_file() or manifest.read_text() != expected:
             errors.append(f"out of date: {manifest}")
         expected_paths = set(json.loads(expected)["managed"])
-        for relative in sorted(read_manifest(home, tool) - expected_paths):
+        for relative in sorted(read_managed_files(home, tool) - expected_paths):
             stale = home / tool / relative
             if stale.exists() or stale.is_symlink():
                 errors.append(f"stale managed file: {stale}")
@@ -191,8 +375,9 @@ def check(home: Path) -> list[str]:
 def sync(home: Path) -> None:
     for tool in TOOL_ADAPTERS:
         expected_paths = set(json.loads(expected_manifest(home, tool))["managed"])
-        for relative in sorted(read_manifest(home, tool) - expected_paths):
+        for relative in sorted(read_managed_files(home, tool) - expected_paths):
             remove_stale(home, tool, relative)
+        apply_preferences(home, tool)
     for relative, (template, add_header) in TARGETS.items():
         content = render(template, add_header=add_header)
         replace_file(home / relative, content)

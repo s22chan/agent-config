@@ -1,0 +1,203 @@
+{
+    "env": {
+        "CLAUDE_CODE_SHELL": "bash",
+        "BASH_SILENCE_DEPRECATION_WARNING": "1",
+        "DISABLE_AUTOUPDATER": "1"
+    },
+    "permissions": {
+        "allow": [
+            "Read",
+            "Bash(rtk ls:*)",
+            "Bash(rtk read:*)",
+            "Bash(rtk wc:*)",
+            "Bash(rtk grep:*)",
+            "Bash(rtk find:*)",
+            "Bash(rtk tree:*)",
+            "Bash(rtk df:*)",
+            "Bash(rtk du:*)",
+            "Bash(rtk ps:*)",
+            "Bash(rtk git status:*)",
+            "Bash(rtk git diff:*)",
+            "Bash(rtk git log:*)",
+            "Bash(rtk git show:*)",
+            "Bash(rtk git branch)",
+            "Bash(rtk git branch --show-current)",
+            "Bash(rtk git branch --list:*)",
+            "Bash(rtk git branch -a)",
+            "Bash(rtk git branch -r)",
+            "Bash(rtk git stash list:*)",
+            "Bash(rtk pip list:*)",
+            "Bash(rtk pip show:*)",
+            "Bash(tail:*)",
+            "Bash(file:*)",
+            "Bash(stat:*)",
+            "Bash(realpath:*)",
+            "Bash(readlink:*)",
+            "Bash(pwd)",
+            "Bash(echo:*)",
+            "Bash(which:*)",
+            "Bash(env)",
+            "Bash(printenv:*)",
+            "Bash(date:*)",
+            "Bash(uname:*)",
+            "Bash(free:*)",
+            "Bash(nvidia-smi:*)",
+            "Bash(git remote)",
+            "Bash(git remote -v)",
+            "Bash(git remote get-url:*)",
+            "Bash(git blame:*)",
+            "Bash(git grep:*)",
+            "Bash(python --version)",
+            "Bash(python3 --version)",
+            "Bash(pip freeze:*)",
+            "Bash(conda list:*)",
+            "Bash(conda env list:*)",
+            "Bash(conda info:*)",
+            "Bash(pixi list:*)",
+            "Bash(pixi info:*)",
+            "Bash(squeue:*)",
+            "Bash(sinfo:*)",
+            "Bash(sacct:*)",
+            "Bash(ty check:*)"
+        ],
+        "deny": [
+            "Bash(rm -rf /)",
+            "Bash(rm -rf /*)",
+            "Bash(rm -rf ~)",
+            "Bash(rm -rf ~/*)",
+            "Bash(rm -rf $HOME)",
+            "Bash(rm -rf .)",
+            "Bash(sudo:*)",
+            "Bash(git reset --hard:*)",
+            "Bash(git clean -f:*)",
+            "Bash(git clean -d:*)",
+            "Bash(mkfs:*)",
+            "Bash(dd:*)",
+            "Bash(shutdown:*)",
+            "Bash(reboot:*)",
+            "Read(**/.env)",
+            "Read(**/.env.*)",
+            "Read(**/*.pem)",
+            "Read(**/id_rsa)",
+            "Read(**/id_ed25519)",
+            "Read(**/.ssh/**)",
+            "Read(**/.aws/**)",
+            "Read(**/.credentials.json)",
+            "Read(**/credentials)"
+        ],
+        "ask": [
+            "Bash(*git push *--force*)",
+            "Bash(*git push -f *)",
+            "Bash(*git push * -f *)",
+            "Bash(*git commit *--amend*)",
+            "Bash(*git rebase -i *)",
+            "Bash(*git rebase --interactive *)",
+            "Bash(*git rebase *--abort*)",
+            "Bash(*git merge *--abort*)"
+        ]
+    },
+    "hooks": {
+        "Notification": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "printf '\\a' > /dev/tty 2>/dev/null || true"
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "printf '\\a' > /dev/tty 2>/dev/null || true"
+                    }
+                ]
+            }
+        ],
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash \"$HOME/.claude/hooks/deny-guard.sh\""
+                    }
+                ]
+            },
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "rtk hook claude"
+                    }
+                ]
+            },
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "L=\"$HOME/.claude/bash-log.txt\"; { printf '%s ' \"$(date -Iseconds)\"; jq -r '.tool_input.command'; } >> \"$L\" 2>/dev/null; chmod 600 \"$L\" 2>/dev/null; if [ \"$(wc -c < \"$L\" 2>/dev/null || echo 0)\" -gt 5242880 ]; then tail -n 2000 \"$L\" > \"$L.tmp\" 2>/dev/null && mv \"$L.tmp\" \"$L\" 2>/dev/null && chmod 600 \"$L\" 2>/dev/null; fi; true"
+                    }
+                ]
+            },
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "input=$(cat); cmd=$(printf '%s' \"$input\" | jq -r '.tool_input.command // empty' 2>/dev/null); dir=$(printf '%s' \"$cmd\" | awk '$1==\"cd\"{print $2}'); case \"$cmd\" in *--amend*) true;; *'git commit'*) staged=$(cd \"${dir:-.}\" 2>/dev/null && git diff --cached -- '*.py' '*.toml' '*.sh' '*.yaml' '*.yml' '*.cfg' '*.ini' '*.js' '*.ts' '*.tsx' '*.jsx' '*.rs' '*.go' '*.c' '*.cc' '*.cpp' '*.h' '*.hpp' '*.cu' '*.cuh' 2>/dev/null); printf '%s' \"$staged\" | grep -Eq '^\\+[^+].*(#|//|/\\*)' && printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"Staged diff adds comments. Check CLAUDE.md Code or run /polish-docs before committing.\"},\"suppressOutput\":true}' || true;; esac"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "^(Write|Edit|Bash)$",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash \"$HOME/.claude/hooks/harden-config-permissions.sh\""
+                    }
+                ]
+            },
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "input=$(cat); cmd=$(printf '%s' \"$input\" | jq -r '.tool_input.command // empty' 2>/dev/null); printf '%s' \"$cmd\" | grep -Eq 'git (commit|rebase)' && printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Review the full commit message as if read on main: describe final design, not same-branch history. Run /polish-commits for a full pass.\"},\"suppressOutput\":true}' || true"
+                    }
+                ]
+            }
+        ]
+    },
+    "statusLine": {
+        "type": "command",
+        "command": "bash ~/.claude/statusline-command.sh"
+    },
+    "enabledPlugins": {
+        "astral@astral-sh": true,
+        "skill-creator@claude-plugins-official": true,
+        "claude-md-management@claude-plugins-official": true,
+        "hookify@claude-plugins-official": true,
+        "remember@claude-plugins-official": true,
+        "signal-research@skills-dir": false
+    },
+    "extraKnownMarketplaces": {
+        "astral-sh": {
+            "source": {
+                "source": "github",
+                "repo": "astral-sh/claude-code-plugins"
+            }
+        }
+    },
+    "awaySummaryEnabled": false,
+    "skipWorkflowUsageWarning": true,
+    "theme": "dark",
+    "autoCompactEnabled": true
+}

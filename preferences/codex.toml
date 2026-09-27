@@ -1,0 +1,28 @@
+approval_policy = "on-request"
+approvals_reviewer = "user"
+sandbox_mode = "danger-full-access"
+
+[tui]
+status_line = ["current-dir", "git-branch", "context-used", "thread-title", "model", "estimated-thread-cost", "task-progress"]
+status_line_use_colors = true
+fullscreen_transcript = true
+
+[marketplaces.astral-sh]
+source_type = "git"
+source = "https://github.com/astral-sh/claude-code-plugins.git"
+
+[marketplaces.claude-plugins-official]
+source_type = "git"
+source = "https://github.com/anthropics/claude-plugins-official.git"
+
+[plugins."astral@astral-sh"]
+enabled = true
+
+[plugins."code-simplifier@claude-plugins-official"]
+enabled = true
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[features.context_management]
+experimental_mode = true
