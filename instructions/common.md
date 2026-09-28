@@ -71,9 +71,11 @@
   In particular, explain a selected performance boundary or bucket, and the
   cost and correctness consequence of synchronization, buffering, or another
   runtime tradeoff that a reader cannot infer from the value alone.
-- When refactoring, retain or relocate a source or specification citation when
-  it explains an invariant that remains true; remove it only when it no longer
-  describes the current code.
+- When refactoring or moving ownership, retain or relocate any still-true
+  rationale, operational evidence, and source or specification citation to the
+  new owner. A name, type, or test that states behavior does not replace why a
+  policy exists. Remove the rationale only when its premise no longer describes
+  the current code.
 - Scope factual claims to the evidence. Preserve uncertainty when an
   environment-dependent boundary is not established; prefer a checkable
   version, artifact, test, or issue when one establishes it.
