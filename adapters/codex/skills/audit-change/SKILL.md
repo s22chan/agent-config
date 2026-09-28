@@ -31,7 +31,7 @@ the delegation message identifies the current agent as the audit coordinator,
 continue here and do not create another coordinator.
 
 Create one fresh judgment agent per selected lane or decision-owner shard with
-`model: gpt-6-sol`, `fork_turns: none`, and `high` reasoning effort. Never use
+`model: gpt-5.6-sol`, `fork_turns: none`, and `high` reasoning effort. Never use
 a higher reasoning effort for this workflow. Give each agent the compact scope
 index and its lane-local evidence paths. Keep all dispatches within the shared
 reviewer and evidence budgets. Construct every delegation with the same review
