@@ -118,9 +118,13 @@ Treat parser, matcher, regex, and decoder changes as input-boundary changes:
   the authoritative base, including machinery, state, recurring cost, failure
   modes, and tests. Treat diff-added machinery as removable, not sunk cost, and
   choose the smallest change that prevents the supported failure.
-- Inspect sibling implementations and mature dependency contracts when they
-  may own the established solution. Prefer a dependency's supported lifecycle
-  unless executed evidence shows it is insufficient.
+- Use dependency and sibling-implementation evidence already established for the
+  same task, contract, and revision. Inspect further only when that evidence is
+  absent, a dependency-search reopening condition applies, or the review
+  identifies a specific unsupported behavior. Do not repeat candidate discovery
+  merely because this workflow follows design or implementation. Prefer a
+  dependency's supported lifecycle unless executed evidence shows it is
+  insufficient.
 - Select only adversarial dimensions reachable in the touched contract. Check
   untested branches, error paths, defaults, caller blast radius, and assumptions
   not enforced by types, validation, or contracts.
