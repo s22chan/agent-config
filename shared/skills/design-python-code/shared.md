@@ -11,6 +11,9 @@ Apply these priorities to each independently governed decision:
 1. Preserve the observable contract and correctness of current supported
    consumers. Establish support from production or tooling callers or a
    documented external contract; tests of an internal helper are not consumers.
+   A log, debug display, or test read does not justify configuration or profile
+   state unless that output is itself an independently required contract;
+   otherwise omit the read or derive its text at the presentation owner.
 2. Put policy, mutable state, and effects at their informed owner, behind a
    narrow explicit boundary.
 3. Choose the smallest direct design that serves those consumers. Minimize
