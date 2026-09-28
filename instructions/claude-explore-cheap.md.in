@@ -5,5 +5,5 @@ model: haiku
 tools: Read, Grep, Glob, LSP
 ---
 
-<!-- Generated from ~/agent-config; edit the source templates there. -->
+<!-- Generated from ~/agent-config; edit sources there, then run ~/agent-config/bootstrap.sh. -->
 <!-- include: ../shared/prompts/explore-cheap.md -->

@@ -4,6 +4,14 @@
   operational rule or changing instruction or configuration policy. It owns
   behavior boundaries, source-of-truth selection, incident replay,
   generalization, and routing validation.
+- Personal agent configuration is sourced from `~/agent-config`: use
+  `instructions/` for root instructions, `shared/` for cross-tool workflow
+  bodies, `adapters/{codex,claude}/` for tool-specific surfaces, and
+  `preferences/` for managed settings. After editing, run
+  `~/agent-config/bootstrap.sh`, which synchronizes and validates the installed
+  configuration. To check consistency without applying changes, run
+  `~/agent-config/sync.py --check` instead. Do not repeat that check after an
+  unchanged successful bootstrap, and do not edit installed generated copies.
 
 ## Verification
 

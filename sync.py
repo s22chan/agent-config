@@ -29,7 +29,8 @@ INCLUDE = re.compile(r'^<!-- include: ([^/][^>]*) -->$')
 # active workspace, so referenced assets must be copied under its config root.
 CODEX_COPY_ROOTS = {"prompts", "skills"}
 GENERATED_HEADER = (
-    "<!-- Generated from ~/agent-config; edit the source templates there. -->\n"
+    "<!-- Generated from ~/agent-config; edit sources there, then run "
+    "~/agent-config/bootstrap.sh. -->\n"
 )
 MANIFEST_NAME = ".agent-config-manifest.json"
 TOOL_ADAPTERS = {
