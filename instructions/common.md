@@ -179,6 +179,10 @@
 
 - Never run `gh`; describe the PR title/body/branch for the user to submit in the
   GitHub web UI.
+- Select a repository with the shell working directory or `git -C <repo>`;
+  arguments after `--` are pathspecs within that repository. When one shell
+  command inspects multiple repositories, anchor every Git invocation
+  separately.
 - Stage explicit files only; never use `git add -A` or `git add .`.
 - PR descriptions lead with the takeaway and reviewer-visible changes; point to
   commit history for detailed evidence instead of repeating it.
