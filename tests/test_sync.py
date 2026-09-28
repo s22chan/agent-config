@@ -1,13 +1,12 @@
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 import tomlkit
-
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,6 +18,21 @@ def run_sync(home: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         text=True,
     )
+
+
+def run_git(root: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", "-C", str(root), *arguments],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+
+def require_git(root: Path, *arguments: str) -> None:
+    result = run_git(root, *arguments)
+    if result.returncode != 0:
+        raise AssertionError(result.stderr)
 
 
 class SyncTest(unittest.TestCase):
@@ -118,6 +132,109 @@ class SyncTest(unittest.TestCase):
             claude = json.loads(claude_path.read_text())
             self.assertEqual(claude["theme"], "dark")
             self.assertTrue(claude["localOnly"])
+            self.assertEqual(run_sync(home, "--check").returncode, 0)
+
+    def test_adopt_existing_clones_preserves_local_state_and_backs_up_history(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            home = root / "home"
+            home.mkdir()
+            clone_inputs = {
+                ".claude": (
+                    "settings.json",
+                    json.dumps({"model": "local", "localOnly": True}) + "\n",
+                    "CLAUDE.md",
+                ),
+                ".codex": (
+                    "config.toml",
+                    'model = "local"\n',
+                    "AGENTS.md",
+                ),
+            }
+            for tool, (settings_name, settings, instructions_name) in (
+                clone_inputs.items()
+            ):
+                clone = home / tool
+                clone.mkdir()
+                require_git(clone, "init", "-q")
+                require_git(clone, "config", "user.name", "Migration Test")
+                require_git(
+                    clone, "config", "user.email", "migration@example.invalid"
+                )
+                (clone / settings_name).write_text(settings)
+                (clone / ".gitignore").write_text(
+                    f"{settings_name}\nruntime.local\nsessions/\n"
+                )
+                (clone / instructions_name).write_text("old instructions\n")
+                (clone / "legacy.txt").write_text("committed legacy\n")
+                (clone / "runtime.local").write_text("preserve runtime\n")
+                (clone / "sessions").mkdir()
+                (clone / "sessions/history.json").write_text("preserve session\n")
+                require_git(
+                    clone,
+                    "add",
+                    "--",
+                    ".gitignore",
+                    instructions_name,
+                    "legacy.txt",
+                )
+                require_git(clone, "commit", "-q", "-m", "old config")
+                (clone / "legacy.txt").write_text("dirty legacy\n")
+
+            result = run_sync(home, "--adopt-existing-clones")
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            backup = Path(result.stdout.strip().partition("backup: ")[2])
+            self.assertEqual(backup.parent, home / ".agent-config-backups")
+            for tool, (settings_name, settings, instructions_name) in (
+                clone_inputs.items()
+            ):
+                live = home / tool
+                saved = backup / tool
+                self.assertFalse((live / ".git").exists())
+                self.assertFalse((live / "legacy.txt").exists())
+                self.assertEqual(
+                    (live / "runtime.local").read_text(), "preserve runtime\n"
+                )
+                self.assertEqual(
+                    (live / "sessions/history.json").read_text(),
+                    "preserve session\n",
+                )
+                self.assertTrue((live / instructions_name).is_file())
+                self.assertTrue((saved / ".git").is_dir())
+                self.assertEqual(
+                    (saved / f"snapshot/{settings_name}").read_text(), settings
+                )
+                self.assertEqual(
+                    (saved / "snapshot/legacy.txt").read_text(), "dirty legacy\n"
+                )
+                self.assertEqual(
+                    (saved / f"snapshot/{instructions_name}").read_text(),
+                    "old instructions\n",
+                )
+                self.assertFalse((saved / "snapshot/runtime.local").exists())
+                self.assertFalse((saved / "snapshot/sessions").exists())
+                metadata = json.loads((saved / "migration.json").read_text())
+                self.assertIn(settings_name, metadata["snapshot"])
+                self.assertIn("legacy.txt", metadata["obsolete"])
+                self.assertEqual(
+                    run_git(
+                        live,
+                        f"--git-dir={saved / '.git'}",
+                        f"--work-tree={live}",
+                        "status",
+                        "--short",
+                    ).returncode,
+                    0,
+                )
+
+            claude = json.loads((home / ".claude/settings.json").read_text())
+            self.assertEqual(claude["model"], "local")
+            self.assertTrue(claude["localOnly"])
+            codex = tomlkit.parse((home / ".codex/config.toml").read_text()).unwrap()
+            self.assertEqual(codex["model"], "local")
             self.assertEqual(run_sync(home, "--check").returncode, 0)
 
     def test_sync_renders_instructions_and_materializes_shared_files(self) -> None:

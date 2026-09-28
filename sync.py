@@ -5,16 +5,19 @@
 # ///
 
 import argparse
-from collections.abc import Mapping, MutableMapping
 import json
 import os
-from pathlib import Path
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
+from collections.abc import Mapping, MutableMapping
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
 
 import tomlkit
-
 
 ROOT = Path(__file__).resolve().parent
 INSTRUCTIONS = ROOT / "instructions"
@@ -45,6 +48,12 @@ TARGETS = {
         False,
     ),
 }
+
+
+@dataclass(frozen=True)
+class ConfigClone:
+    root: Path
+    tracked_paths: tuple[Path, ...]
 
 
 def render(template: Path, *, add_header: bool = True) -> str:
@@ -406,9 +415,158 @@ def sync(home: Path) -> None:
         )
 
 
+def git_output(root: Path, *arguments: str) -> bytes:
+    result = subprocess.run(
+        ["git", "-C", str(root), *arguments],
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        error = os.fsdecode(result.stderr).strip()
+        raise RuntimeError(f"git failed for {root}: {error}")
+    return result.stdout
+
+
+def find_config_clones(home: Path) -> list[ConfigClone]:
+    clones = []
+    for tool in TOOL_ADAPTERS:
+        root = home / tool
+        git_metadata = root / ".git"
+        if not git_metadata.exists() and not git_metadata.is_symlink():
+            continue
+        top_level = Path(
+            os.fsdecode(git_output(root, "rev-parse", "--show-toplevel")).strip()
+        )
+        if top_level.resolve() != root.resolve():
+            raise ValueError(
+                f"refusing to adopt {root}: repository root is {top_level}"
+            )
+        tracked_paths = []
+        for raw_path in git_output(root, "ls-files", "-z").split(b"\0"):
+            if not raw_path:
+                continue
+            relative = Path(os.fsdecode(raw_path))
+            if relative.is_absolute() or ".." in relative.parts:
+                raise ValueError(f"tracked path escapes {root}: {relative}")
+            source = root / relative
+            if source.exists() and not source.is_file() and not source.is_symlink():
+                raise ValueError(
+                    f"refusing to adopt non-file tracked path: {source}"
+                )
+            tracked_paths.append(relative)
+        clones.append(ConfigClone(root, tuple(tracked_paths)))
+    return clones
+
+
+def create_backup_root(home: Path) -> Path:
+    parent = home / ".agent-config-backups"
+    parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return Path(tempfile.mkdtemp(prefix=f"adopt-{timestamp}-", dir=parent))
+
+
+def copy_config_path(source: Path, target: Path) -> bool:
+    if not source.exists() and not source.is_symlink():
+        return False
+    target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if source.is_symlink():
+        target.symlink_to(os.readlink(source))
+    else:
+        shutil.copy2(source, target)
+    return True
+
+
+def owned_config_paths(home: Path, tool: str) -> set[Path]:
+    managed = {
+        Path(relative)
+        for relative in json.loads(expected_manifest(home, tool))["managed"]
+    }
+    settings_path, _, _ = SETTINGS[tool]
+    return managed | {settings_path, Path(MANIFEST_NAME)}
+
+
+def obsolete_tracked_paths(home: Path, clone: ConfigClone) -> set[Path]:
+    return set(clone.tracked_paths) - owned_config_paths(home, clone.root.name)
+
+
+def remove_empty_parents(path: Path, root: Path) -> None:
+    while path != root:
+        try:
+            path.rmdir()
+        except OSError:
+            return
+        path = path.parent
+
+
+def adopt_existing_clones(home: Path) -> Path | None:
+    clones = find_config_clones(home)
+    if not clones:
+        sync(home)
+        return None
+
+    backup = create_backup_root(home)
+    obsolete_by_root = {
+        clone.root: obsolete_tracked_paths(home, clone) for clone in clones
+    }
+    for clone in clones:
+        clone_backup = backup / clone.root.name
+        snapshot_backup = clone_backup / "snapshot"
+        snapshot_paths = set(clone.tracked_paths) | owned_config_paths(
+            home, clone.root.name
+        )
+        snapshot = []
+        missing = []
+        for relative in sorted(snapshot_paths):
+            if copy_config_path(clone.root / relative, snapshot_backup / relative):
+                snapshot.append(relative.as_posix())
+            else:
+                missing.append(relative.as_posix())
+        metadata = {
+            "source": str(clone.root),
+            "tracked": [path.as_posix() for path in clone.tracked_paths],
+            "snapshot": snapshot,
+            "missing": missing,
+            "obsolete": sorted(
+                path.as_posix() for path in obsolete_by_root[clone.root]
+            ),
+        }
+        replace_file(
+            clone_backup / "migration.json",
+            json.dumps(metadata, indent=2) + "\n",
+            mode=0o600,
+        )
+
+    sync(home)
+    errors = check(home)
+    if errors:
+        raise RuntimeError(
+            f"synchronized configuration did not validate; backup is {backup}:\n"
+            + "\n".join(errors)
+        )
+
+    for clone in clones:
+        clone_backup = backup / clone.root.name
+        shutil.move(str(clone.root / ".git"), str(clone_backup / ".git"))
+        for relative in sorted(obsolete_by_root[clone.root]):
+            stale = clone.root / relative
+            if stale.is_file() or stale.is_symlink():
+                stale.unlink()
+                remove_empty_parents(stale.parent, clone.root)
+
+    errors = check(home)
+    if errors:
+        raise RuntimeError(
+            f"adopted configuration did not validate; backup is {backup}:\n"
+            + "\n".join(errors)
+        )
+    return backup
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true")
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument("--check", action="store_true")
+    action.add_argument("--adopt-existing-clones", action="store_true")
     parser.add_argument("--home", type=Path, default=Path.home())
     args = parser.parse_args()
     if args.check:
@@ -416,6 +574,13 @@ def main() -> int:
         if errors:
             print("\n".join(errors), file=sys.stderr)
             return 1
+        return 0
+    if args.adopt_existing_clones:
+        backup = adopt_existing_clones(args.home)
+        if backup is None:
+            print("no existing ~/.claude or ~/.codex clones found; synchronized")
+        else:
+            print(f"adopted existing config clones; backup: {backup}")
         return 0
     sync(args.home)
     return 0
