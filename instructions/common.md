@@ -16,13 +16,18 @@
   runtime semantics, and `design-diagnostic-visualizations` for diagnostic
   encoding and interpretation. Do not let one suppress another's applicable
   checks.
+- When applicable rules request the same search, trace, artifact inspection, API
+  read, or check over unchanged inputs, perform it once and let each workflow
+  evaluate the shared evidence. Repeat work only when a rule explicitly requires
+  independent judgment, relevant inputs or state changed, the prior result was
+  invalidated, or the first pass left a specific gap. Starting another workflow
+  or reaching handoff is not by itself a reason to repeat work.
 - Run the smallest decisive checks appropriate to the changed behavior and any
-  required repository checks. Once they pass, do not broaden or repeat them
-  unless code or configuration changed after the result, a failure invalidated
-  it, or a specific unresolved concern requires another check.
+  required repository checks. Add or broaden checks only when changed code or
+  configuration invalidated earlier evidence, a failure requires diagnosis, or
+  a specific unresolved concern requires another check.
 - Verify the final result before reporting completion, separating evidence that
-  the new behavior works from regression checks. Do not rerun an unchanged
-  passing check solely for handoff.
+  the new behavior works from regression checks.
 - Scale checks to the edit surface: use runtime tests for runtime changes, the
   applicable checker for directive-only changes, and a syntax or parse check for
   prose-only changes.
