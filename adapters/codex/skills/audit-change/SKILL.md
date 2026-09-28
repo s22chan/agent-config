@@ -34,8 +34,18 @@ Create one fresh judgment agent per selected lane or decision-owner shard with
 `model: gpt-6-sol`, `fork_turns: none`, and `high` reasoning effort. Never use
 a higher reasoning effort for this workflow. Give each agent the compact scope
 index and its lane-local evidence paths. Keep all dispatches within the shared
-reviewer and evidence budgets. Dispatch independent agents in parallel when
-collaboration slots permit and queue the rest. Do not create a separate mapping
+reviewer and evidence budgets. Construct every delegation with the same review
+contract and shared scope first, in the same field order, followed by the lane
+or shard identity, rubric, workflow paths, and lane-local evidence. Keep the
+shared prefix byte-identical: exclude timestamps, random identifiers, and
+lane-local values from it.
+
+When more than one judgment agent is planned, dispatch the first agent in the
+recorded allocation by itself and wait for its final result before dispatching
+another. This completed request primes the common model prefix without consuming
+an extra reviewer slot. Then dispatch the remaining independent agents in
+parallel when collaboration slots permit and queue the rest. A single-agent
+audit dispatches normally. Do not create a separate mapping or cache-priming
 agent.
 
 The root owns scope resolution, evidence materialization, final verification,
