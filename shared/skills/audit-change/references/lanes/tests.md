@@ -5,6 +5,11 @@ Read and apply the
 as a filter over tests in scope. Find behavior a reader would think is protected
 but that can regress while the test still passes.
 
+When collaborator destination or threading is supported behavior, reject a
+type- or module-wide patch as evidence if the shipped boundary accepts an
+instance. Verify that the configured double is the instance reached through
+that boundary.
+
 For every candidate, return the owned contract; the exact test, change claim,
 regression, or history that establishes it; the base and current safeguards;
 why the proposed mutation violates that contract rather than an adjacent

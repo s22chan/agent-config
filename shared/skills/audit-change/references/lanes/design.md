@@ -13,3 +13,11 @@ Report diff-introduced churn only when the base comparison shows an avoidable
 behavior difference, repeated work, reachable state, abstraction, or
 maintenance obligation. This lane asks whether the current implementation has
 the right ownership, reachable states, and abstraction cost.
+
+Inspect test scaffolding changed to follow a new interface or ownership
+boundary. When the diff mechanically changes identical construction,
+injection, or mock wiring across cases, decide whether the nearest existing
+helper can own the invariant part. Report a shared mutable double or avoidable
+repeated changed wiring as a maintenance obligation; do not report distinct
+scenario data, an explicit dependency repeated across independent harnesses,
+or untouched inherited setup.

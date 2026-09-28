@@ -18,6 +18,11 @@ a contract-preserving refactor can make it fail.
   not products. Keep their self-tests only while building or debugging. Scope
   fixture data to its owning test or helper; lift it only when it expresses a
   shared behavioral premise or makes a substantial protocol example legible.
+- When an interface change repeats the same mock construction or injection
+  across tests, inventory the changed occurrences before editing them. Put only
+  invariant wiring in the nearest existing helper or fixture; keep response
+  data and scenario behavior in the owning test. Do not parameterize unrelated
+  cases or hide an explicit required dependency shared only by coincidence.
 - When behavior or policy is removed, moved, or merged, state the old and new
   contract and inventory affected tests. Update the test at the new owner or
   delete obsolete negative tests. Invert one into an acceptance test only when
@@ -30,6 +35,11 @@ a contract-preserving refactor can make it fail.
 - Keep every collaborator whose behavior determines the outcome real at the
   smallest practical integration layer. If an operational constraint requires
   a seam, replace only that seam and record what remains unproven.
+- When the shipped boundary accepts a collaborator instance, configure and
+  inject that exact double. Do not patch the collaborator type or its
+  module-wide method: another instance would receive the same fake behavior, so
+  destination and threading regressions could survive. Use a broader patch only
+  when the shipped path has no narrower injectable seam.
 - Mock calls, forwarded arguments, object identity, component properties, and
   construction counts are wiring unless a consumer observes them. They become
   valid adapter contracts when order, threading, destination, retries, required

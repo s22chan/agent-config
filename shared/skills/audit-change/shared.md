@@ -78,6 +78,11 @@ by the change. Do not describe a retained oddity or an unchanged adjacent file
 as refactor churn unless the change makes its consequence worse or makes a new
 claim that it contradicts.
 
+Repeated boundary wiring that the diff mechanically changes at every
+occurrence is part of the migration surface, not untouched adjacent code. Judge
+whether one current local owner can absorb its invariant setup without hiding
+required dependencies or per-case semantics.
+
 ## Protect the primary worktree
 
 Leave the primary worktree exactly as found. In it, do not edit files, apply
