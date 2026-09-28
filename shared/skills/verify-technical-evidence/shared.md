@@ -52,6 +52,15 @@ mechanisms were covered.
 Verify numerical and performance claims directly, scope them to the observed
 artifact and conditions, and omit unverified figures.
 
+Before changing or removing a cache, pool, batching boundary, warm-up path, or
+other performance mechanism based on its cost, measure the alternatives through
+the production lifecycle. Match process and session lifetime, request-key or
+input changes, and the real reuse or invalidation interval. Immediate repeats
+inside one process do not establish behavior for recurring fresh processes; if
+the production interval cannot be exercised, retain the mechanism or report the
+gap instead of inferring cache hits, misses, or amortized cost from adjacent
+measurements.
+
 For comparisons, inspect the null or no-op action and make sure the scored
 alternatives differ in the intended dimension while remaining capable of a
 nonzero result. When two estimates of the same quantity differ by roughly 3x or
