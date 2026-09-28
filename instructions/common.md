@@ -123,16 +123,21 @@
   paths, or tests for hypothetical customers. Extensibility means the
   next concrete case is a local addition, not that its behavior is built
   in advance.
-- For every implementation request, before recommending an approach or editing
-  code, inspect the project manifest and lockfile, the standard library, and
-  nearby implementations for a supported dependency or shared local operation
-  that already owns the required contract. For generic infrastructure or a
-  standard protocol, also search the current external package ecosystem for a
-  maintained implementation and verify its supported behavior and version
-  compatibility from primary sources. Compare each candidate's exact behavior,
-  lifecycle, dependency cost, and adaptation cost with a direct implementation.
-  Reuse it when it fits; keep domain policy local when a generic dependency
-  would leave the same policy or add more translation than it removes.
+- Run one contract-scoped dependency check before recommending an implementation
+  or editing code. Inspect the project manifest and lockfile, the standard
+  library, and nearby implementations for a supported dependency or shared local
+  operation that already owns the required contract. For generic infrastructure
+  or a standard protocol, also search the current external package ecosystem for
+  a maintained implementation and verify its supported behavior and version
+  compatibility from primary sources. Within the same task, contract, and
+  revision, perform candidate discovery once; later architecture, design, and
+  review checks reuse that evidence. Reopen a candidate search only when a
+  requirement, relevant version, revision, or primary-source fact changed, or
+  when the earlier search left a specific behavior unverified. Compare each
+  candidate's exact behavior, lifecycle, dependency cost, and adaptation cost
+  with a direct implementation. Reuse it when it fits; keep domain policy local
+  when a generic dependency would leave the same policy or add more translation
+  than it removes.
 - Before writing production code, trace the shipped entry point, current
   consumers, sibling implementations, and import boundaries. Decide which
   module owns each policy, state transition, and external effect, and which
