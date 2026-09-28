@@ -18,6 +18,16 @@ scope. A request for a report or long form changes only the rendering; read
 Resolve scope once and give every lane or decision-owner shard the same revision
 and diff boundary. A shard narrows the judgment focus, not the audited change:
 
+Before dispatching a multi-commit series, apply the `polish-commits` ownership
+decision to its review units. A corrective follow-up that leaves an earlier
+unmerged commit incomplete or transitional belongs to the same review unit: if
+rewriting is authorized, consolidate it before the audit; otherwise audit the
+aggregate range and state that the additive history is a constraint.
+Independently reviewable commits may be audited separately only as complete
+reviews, with every selected lane using that commit's parent boundary. Never
+partition lanes across chronological commit bundles or give lanes different
+main-versus-follow-up scopes within one audit.
+
 1. When the user explicitly requests the full setup, tracked tree, snapshot,
    or current state, inspect the full tracked tree at the resolved revision;
    no comparison base is required. State whether ignored or untracked paths
