@@ -40,16 +40,16 @@ or shard identity, rubric, workflow paths, and lane-local evidence. Keep the
 shared prefix byte-identical: exclude timestamps, random identifiers, and
 lane-local values from it.
 
-When more than one judgment agent is planned, dispatch the first agent in the
-recorded allocation by itself and wait for its final result before dispatching
-another. This completed request primes the common model prefix without consuming
-an extra reviewer slot. Then dispatch the remaining independent agents in
-parallel when collaboration slots permit and queue the rest. A single-agent
-audit dispatches normally. Do not create a separate mapping or cache-priming
-agent.
+Dispatch all planned judgment agents together when collaboration slots permit
+and queue the rest. Do not run one agent alone to prime the cache: every agent
+already shares the base instructions that the coordinator's own first request
+wrote, and a measured audit cached the same prefix for the first agent and for
+each later one. Do not create a separate mapping agent.
 
 The root owns scope resolution, evidence materialization, final verification,
-and merging. Keep every judgment agent read-only and tell it not to spawn
+and merging. Prepare evidence in a few batched calls, each running one
+deterministic script that writes files and prints only paths, byte counts, and
+digests, and do not read a materialized body back into the root context. Keep every judgment agent read-only and tell it not to spawn
 descendants. Use the live collaboration tree to verify liveness before a
 mutation probe. Codex agents share the filesystem, so do not delegate mutation
 probes or run them concurrently with reviewer turns.
