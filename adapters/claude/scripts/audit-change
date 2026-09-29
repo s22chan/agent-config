@@ -5,9 +5,49 @@
 
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 from collections.abc import Mapping
+from pathlib import Path
+
+EVIDENCE_ENV = "S22CHAN_AUDIT_EVIDENCE_DIR"
+
+# A headless run has no approval prompt, so anything not pre-approved here is
+# denied and the coordinator stops before dispatching a reviewer. Writes are
+# limited to the evidence directory; commands are limited to read-only forms.
+READ_ONLY_COMMANDS = (
+    "git rev-parse", "git log", "git show", "git diff", "git merge-base",
+    "git ls-tree", "git ls-files", "git cat-file", "git grep", "git status",
+    "git check-ignore", "git rev-list", "git for-each-ref", "git show-ref",
+    "git diff-tree", "git branch --list", "git branch --show-current",
+    "git remote get-url", "git remote -v",
+    "cat", "ls", "wc", "sed", "awk", "grep", "rg", "head", "tail", "sort",
+    "uniq", "cut", "tr", "comm", "diff", "sha256sum", "stat", "realpath",
+    "basename", "dirname", "printenv", "date", "echo", "cd",
+)
+
+
+def permission_arguments(evidence: Path, worktree: Path) -> list[str]:
+    """Pre-approves writes to the evidence directory and denies the worktree.
+
+    A leading double slash marks an absolute path in permission rules; a single
+    slash is relative to the project root and would not match.
+    """
+    allowed = [f"Write(/{evidence}/**)", f"Edit(/{evidence}/**)"]
+    allowed += [f"Bash({command}:*)" for command in READ_ONLY_COMMANDS]
+    denied = [
+        f"Write(/{worktree}/**)",
+        f"Edit(/{worktree}/**)",
+        "Bash(sed -i:*)",
+        "Bash(sed --in-place:*)",
+    ]
+    return [
+        "--add-dir", str(evidence),
+        "--allowedTools", *allowed,
+        "--disallowedTools", *denied,
+    ]
 
 
 def usage_value(usage: Mapping, snake_name: str, camel_name: str) -> int:
@@ -111,6 +151,7 @@ def main() -> int:
     prompt = "/audit"
     if arguments:
         prompt += " " + " ".join(arguments)
+    evidence = Path(tempfile.mkdtemp(prefix="audit-evidence-")).resolve()
     command = [
         "claude",
         "-p",
@@ -119,13 +160,23 @@ def main() -> int:
         "--output-format",
         "json",
         "--exclude-dynamic-system-prompt-sections",
+        *permission_arguments(evidence, Path.cwd().resolve()),
+        "--",
         prompt,
     ]
-    completed = subprocess.run(command, check=False, capture_output=True, text=True)
+    completed = subprocess.run(
+        command,
+        check=False,
+        capture_output=True,
+        text=True,
+        env={**os.environ, EVIDENCE_ENV: str(evidence)},
+    )
     sys.stderr.write(completed.stderr)
     if completed.returncode != 0:
         sys.stdout.write(completed.stdout)
+        print(f"audit evidence kept at {evidence}", file=sys.stderr)
         return completed.returncode
+    shutil.rmtree(evidence, ignore_errors=True)
 
     try:
         emit_result(json.loads(completed.stdout))

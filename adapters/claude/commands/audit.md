@@ -61,7 +61,11 @@ reviewer the compact scope index, the exact lane rubric text, its referenced
 workflow path, and only its lane-local evidence paths.
 
 The coordinator's turn limit and prompt-cache cost both grow with every tool
-call. Prepare evidence in a few batched calls: resolve the revision, base, and
+call. When `S22CHAN_AUDIT_EVIDENCE_DIR` is set, keep every evidence file in that
+directory and create no other; a headless run pre-approves writes only there,
+and only by literal path, so read the value once with `printenv` and never
+redirect to a shell variable. Otherwise create one disposable evidence directory. Prepare evidence in a few
+batched calls: resolve the revision, base, and
 worktree state together, discover instruction files together, and materialize
 the diff, base snapshots, log, sizes, and digests in one deterministic script
 that prints only paths, byte counts, and digests. Read named downstream files
