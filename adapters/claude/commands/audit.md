@@ -42,17 +42,43 @@ Map shared workflows to these Claude skills and commands:
 
 Create one fresh contained `audit-reviewer-high` agent per selected lane or
 decision-owner shard. Never resume a reviewer for a different lane and never
-raise reviewer effort above high. Run reviewers sequentially in the foreground
-so their results return to this isolated coordinator instead of the invoking
-session. The command frontmatter starts a fresh Sonnet/high coordinator, while
-each reviewer uses Opus/high. Stop if a reviewer reports a substituted model or
-effort. Do not create a separate mapping agent.
+raise reviewer effort above high. Launch all reviewers together as foreground
+agents in a single message and wait for every one to return, so their results
+return to this isolated coordinator instead of the invoking session. Waiting
+once keeps the coordinator's prompt cache from expiring between lanes. The command frontmatter starts a fresh Sonnet/high coordinator, while
+each reviewer uses Opus/high. A model cannot observe its own effort, so do not
+ask a reviewer to state its model or effort and do not act on such a statement.
+After each reviewer stops, read its transcript
+`~/.claude/projects/*/*/subagents/agent-<agentId>.jsonl` and stop if any
+assistant entry has a `message.model` other than `claude-opus-5-5` or an
+`effort` or `perTurnEffort` other than `high`; a missing field is unverified,
+not a mismatch. Do not create a separate mapping agent.
 
 The reviewers omit Bash, delegation, and write tools. The root materializes
 large diffs, base snapshots, and checker output into disposable local evidence
 files without returning their bodies into its own model context. Give each
 reviewer the compact scope index, the exact lane rubric text, its referenced
 workflow path, and only its lane-local evidence paths.
+
+The coordinator's turn limit and prompt-cache cost both grow with every tool
+call. Prepare evidence in a few batched calls: resolve the revision, base, and
+worktree state together, discover instruction files together, and materialize
+the diff, base snapshots, log, sizes, and digests in one deterministic script
+that prints only paths, byte counts, and digests. Read named downstream files
+in one call when their paths are already known. Do not read a materialized body
+back into your own context; the reviewers read it.
+
+Reviewers do not read the personal instruction files whole. In the same script,
+extract per-lane excerpts of `~/agent-config/instructions/common.md` by `## `
+heading into that lane's evidence files, fail if any named heading yields no
+lines, and list each excerpt as lane-local evidence. Do not list `common.md` or
+`~/.claude/CLAUDE.md` in the shared scope index; the latter governs the
+invoking agent's communication, shell, and tool use, not review. Sections per
+lane: `review` and `grill` take Code and Verification; `design` takes Code and
+Code prose; `tests` takes Verification and Code; `docs` takes Code prose;
+`commits` takes Git and review prose and Code prose. When the diff touches agent
+instruction or configuration files, add Instruction and configuration changes
+to every lane. Repository instruction files stay in the shared scope index.
 
 Construct every reviewer prompt with these headings in this exact order:
 
