@@ -129,14 +129,6 @@ inspect_line() {
       esac
 
       case "$name" in
-        rtk)
-          if [ "$tok" != rtk ] || [ "$wrapper_count" -ne 0 ]; then
-            prompt_prefix_ok=0
-          fi
-          wrapper_kind=rtk
-          wrapper_count=$((wrapper_count + 1))
-          continue
-          ;;
         sudo|command|env|proxy|time|nice|nohup|stdbuf|builtin|noglob|xargs)
           wrapper_kind=$name
           wrapper_count=$((wrapper_count + 1))
@@ -291,7 +283,7 @@ inspect_line() {
           ;;
         push:--force|push:-f|push:--force-with-lease)
           if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run the force option immediately after git push, directly or through rtk, so the approval rule can prompt"
+            deny "run the force option immediately after git push, so the approval rule can prompt"
           fi
           ;;
         push:--force-with-lease=*|push:+*|push:--mirror)
@@ -299,17 +291,17 @@ inspect_line() {
           ;;
         commit:--amend)
           if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run --amend immediately after git commit, directly or through rtk, so the approval rule can prompt"
+            deny "run --amend immediately after git commit, so the approval rule can prompt"
           fi
           ;;
         rebase:-i|rebase:--interactive)
           if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run the interactive option immediately after git rebase, directly or through rtk, so the approval rule can prompt"
+            deny "run the interactive option immediately after git rebase, so the approval rule can prompt"
           fi
           ;;
         rebase:--abort|merge:--abort)
           if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run --abort immediately after the Git subcommand, directly or through rtk, so the approval rule can prompt"
+            deny "run --abort immediately after the Git subcommand, so the approval rule can prompt"
           fi
           ;;
       esac
