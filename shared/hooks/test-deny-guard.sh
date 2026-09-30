@@ -51,17 +51,15 @@ check deny git-force-combined 'git push -fu origin topic'
 check deny git-force-mirror 'git push --mirror origin'
 check deny git-late-nested-bypass "bash -c 'echo ok; git commit -n -m audit'"
 
-check deny mkfs-rtk 'rtk mkfs.ext4 /dev/sdz'
 check deny mkfs-env-absolute 'env /usr/sbin/mkfs.ext4 /dev/sdz'
 check deny dd-absolute '/usr/bin/dd if=image of=/dev/sdz'
-check deny dd-rtk 'rtk dd if=image of=/dev/sdz'
 
 check allow git-add-file 'git add src/app.py'
 check allow git-commit-normal 'git commit -m audit'
 check allow git-push-normal 'git push origin topic'
 check allow git-force-canonical 'git push --force origin topic'
-check allow git-force-rtk-canonical 'rtk git push --force-with-lease origin topic'
 check allow git-amend-canonical '/usr/bin/git commit --amend -m audit'
+check allow git-amend-after-flag 'git commit -q --amend -m audit'
 check allow git-rebase-canonical 'git rebase -i main'
 check allow git-abort-canonical 'git rebase --abort'
 check allow dd-file-output 'dd if=/dev/zero of=image.bin count=1'

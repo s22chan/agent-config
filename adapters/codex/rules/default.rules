@@ -1,21 +1,8 @@
 prefix_rule(
-    pattern = ["rtk", "pwd"],
-    decision = "allow",
-    match = ["rtk pwd"],
-)
-
-prefix_rule(
     pattern = [["gh", "/bin/gh", "/usr/bin/gh", "/usr/local/bin/gh"]],
     decision = "forbidden",
     justification = "Describe the PR operation for the user to perform in the GitHub web UI.",
     match = ["gh pr view 123", "/usr/bin/gh api repos/example/project"],
-)
-
-prefix_rule(
-    pattern = ["rtk", ["gh", "/bin/gh", "/usr/bin/gh", "/usr/local/bin/gh"]],
-    decision = "forbidden",
-    justification = "Describe the PR operation for the user to perform in the GitHub web UI.",
-    match = ["rtk gh pr view 123", "rtk /usr/bin/gh pr view 123"],
 )
 
 prefix_rule(
@@ -27,13 +14,6 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = ["rtk", ["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], "add", [".", "-A", "--all"]],
-    decision = "forbidden",
-    justification = "Stage explicit files only.",
-    match = ["rtk git add .", "rtk /usr/bin/git add -A"],
-)
-
-prefix_rule(
     pattern = [["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], "push", ["--force", "-f", "--force-with-lease"]],
     decision = "prompt",
     justification = "Force-push requires explicit user approval.",
@@ -41,24 +21,10 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = ["rtk", ["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], "push", ["--force", "-f", "--force-with-lease"]],
-    decision = "prompt",
-    justification = "Force-push requires explicit user approval.",
-    match = ["rtk git push --force", "rtk /usr/bin/git push -f origin topic"],
-)
-
-prefix_rule(
     pattern = [["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], "commit", ["--no-verify", "-n"]],
     decision = "forbidden",
     justification = "Fix the failing hook and rerun the real commit without bypassing verification.",
     match = ["git commit --no-verify -m fix", "/usr/bin/git commit -n -m fix"],
-)
-
-prefix_rule(
-    pattern = ["rtk", ["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], "commit", ["--no-verify", "-n"]],
-    decision = "forbidden",
-    justification = "Fix the failing hook and rerun the real commit without bypassing verification.",
-    match = ["rtk git commit --no-verify -m fix", "rtk /usr/bin/git commit -n -m fix"],
 )
 
 prefix_rule(
@@ -70,25 +36,10 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = ["rtk", ["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], ["merge", "rebase"], "--no-verify"],
-    decision = "forbidden",
-    justification = "Run the operation with its configured hooks instead of bypassing verification.",
-    match = ["rtk git merge --no-verify topic", "rtk /usr/bin/git rebase --no-verify main"],
-    not_match = ["rtk git merge -n topic", "rtk git rebase main"],
-)
-
-prefix_rule(
     pattern = [["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], "commit", "--amend"],
     decision = "prompt",
     justification = "Confirm the proposed message or history rewrite before amending.",
     match = ["git commit --amend", "/usr/bin/git commit --amend -F message.txt"],
-)
-
-prefix_rule(
-    pattern = ["rtk", ["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], "commit", "--amend"],
-    decision = "prompt",
-    justification = "Confirm the proposed message or history rewrite before amending.",
-    match = ["rtk git commit --amend", "rtk /usr/bin/git commit --amend"],
 )
 
 prefix_rule(
@@ -99,22 +50,8 @@ prefix_rule(
 )
 
 prefix_rule(
-    pattern = ["rtk", ["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], "rebase", ["-i", "--interactive"]],
-    decision = "prompt",
-    justification = "Preview and approve the history rewrite before starting an interactive rebase.",
-    match = ["rtk git rebase -i HEAD~3", "rtk /usr/bin/git rebase --interactive main"],
-)
-
-prefix_rule(
     pattern = [["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], ["rebase", "merge"], "--abort"],
     decision = "prompt",
     justification = "Inspect the interrupted operation and obtain approval before aborting it.",
     match = ["git rebase --abort", "/usr/bin/git merge --abort"],
-)
-
-prefix_rule(
-    pattern = ["rtk", ["git", "/bin/git", "/usr/bin/git", "/usr/local/bin/git"], ["rebase", "merge"], "--abort"],
-    decision = "prompt",
-    justification = "Inspect the interrupted operation and obtain approval before aborting it.",
-    match = ["rtk git rebase --abort", "rtk /usr/bin/git merge --abort"],
 )

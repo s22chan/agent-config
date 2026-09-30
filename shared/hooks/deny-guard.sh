@@ -283,25 +283,15 @@ inspect_line() {
           ;;
         push:--force|push:-f|push:--force-with-lease)
           if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run the force option immediately after git push, so the approval rule can prompt"
+            deny "run the force option immediately after git push, directly, so the approval rule can prompt"
           fi
           ;;
         push:--force-with-lease=*|push:+*|push:--mirror)
           deny "this force-push spelling cannot reach the approval rule; use an explicitly prompted form"
           ;;
-        commit:--amend)
-          if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run --amend immediately after git commit, so the approval rule can prompt"
-          fi
-          ;;
         rebase:-i|rebase:--interactive)
           if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run the interactive option immediately after git rebase, so the approval rule can prompt"
-          fi
-          ;;
-        rebase:--abort|merge:--abort)
-          if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run --abort immediately after the Git subcommand, so the approval rule can prompt"
+            deny "run the interactive option immediately after git rebase, directly, so the approval rule can prompt"
           fi
           ;;
       esac

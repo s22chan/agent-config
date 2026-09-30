@@ -7,27 +7,6 @@
     "permissions": {
         "allow": [
             "Read",
-            "Bash(rtk ls:*)",
-            "Bash(rtk read:*)",
-            "Bash(rtk wc:*)",
-            "Bash(rtk grep:*)",
-            "Bash(rtk find:*)",
-            "Bash(rtk tree:*)",
-            "Bash(rtk df:*)",
-            "Bash(rtk du:*)",
-            "Bash(rtk ps:*)",
-            "Bash(rtk git status:*)",
-            "Bash(rtk git diff:*)",
-            "Bash(rtk git log:*)",
-            "Bash(rtk git show:*)",
-            "Bash(rtk git branch)",
-            "Bash(rtk git branch --show-current)",
-            "Bash(rtk git branch --list:*)",
-            "Bash(rtk git branch -a)",
-            "Bash(rtk git branch -r)",
-            "Bash(rtk git stash list:*)",
-            "Bash(rtk pip list:*)",
-            "Bash(rtk pip show:*)",
             "Bash(tail:*)",
             "Bash(file:*)",
             "Bash(stat:*)",
@@ -124,15 +103,6 @@
                     {
                         "type": "command",
                         "command": "bash \"$HOME/.claude/hooks/deny-guard.sh\""
-                    }
-                ]
-            },
-            {
-                "matcher": "Bash",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "rtk hook claude"
                     }
                 ]
             },
