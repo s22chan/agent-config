@@ -28,16 +28,33 @@ reviews, with every selected lane using that commit's parent boundary. Never
 partition lanes across chronological commit bundles or give lanes different
 main-versus-follow-up scopes within one audit.
 
-1. When the user explicitly requests the full setup, tracked tree, snapshot,
-   or current state, inspect the full tracked tree at the resolved revision;
+1. Resolve the target independently of the base. Use an explicitly named
+   target; otherwise use `HEAD`, the current committed tip. Interpret `base A`
+   as the exact comparison ref `A`, `target B` as the exact target ref `B`, and
+   `A..B` as base `A` and target `B`. An explicit base does not select a target
+   or request discovery of that base's ancestry or upstream. Stop and report
+   any unresolved explicit ref; never replace it with an inferred revision.
+   A request to audit the current worktree uses `HEAD` as the committed target
+   and includes its uncommitted changes; it does not by itself select full-tree
+   scope.
+2. When the user explicitly requests the full setup, tracked tree, snapshot,
+   or current state, inspect the full tracked tree at the resolved target;
    no comparison base is required. State whether ignored or untracked paths
    are excluded.
-2. Otherwise use a target or base named by the user or repository.
-3. Otherwise use the configured upstream or remote HEAD. Ask only when no
-   authoritative base can be resolved.
-4. Inspect the complete merge-base diff. Include uncommitted changes only when
-   the target is the current worktree or the user explicitly includes them;
-   otherwise list the current worktree as outside the named revision's scope.
+3. For a comparative audit, use an explicitly named base. Only when the base
+   is omitted, use the repository-established default branch, resolving it
+   from repository configuration or a local remote HEAD symbolic ref such as
+   `origin/HEAD`. Do not use the target branch's tracking upstream: a published
+   feature branch can track its own tip and produce an empty audit. Do not
+   guess `main` or `master` from their names alone. Ask when no authoritative
+   default branch can be resolved or available authorities conflict.
+4. For comparative audits, resolve and inspect the complete merge-base diff.
+   Before judgment, report the base and target refs and commit SHAs, and the
+   merge-base SHA. The range notation selects endpoints; it does not override
+   the merge-base boundary.
+   Include uncommitted changes only when the user explicitly requests the
+   current worktree or includes them; defaulting the target to `HEAD` does not
+   include them. Otherwise list uncommitted changes as outside scope.
 5. Name each identifiable untracked path excluded from the audit. When the
    available evidence gives only a count or description, report that without
    inventing a path.
