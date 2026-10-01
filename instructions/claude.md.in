@@ -24,8 +24,9 @@ same name, except for these command adapters:
   repeated summaries, and detail available from the diff or logs.
 - Deliver a result once, when the evidence it rests on is complete. If verification
   you started is still running, do not publish provisional findings and revise them
-  in a later message; the harness re-invokes you when background work finishes, so
-  yielding with a one-line status or nothing at all costs nothing. Report early only
+  in a later message; the harness re-invokes you when a background agent finishes,
+  so yielding with a one-line status or nothing at all costs nothing. Wait on a
+  shell job by blocking on it instead. Report early only
   when the user asked for progress, or when a partial result is actionable on its own
   and you say plainly what is still outstanding.
 - For substantive coding work, use `changed`, `decisions`, `verification`, and
