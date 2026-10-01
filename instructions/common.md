@@ -323,17 +323,20 @@
 - Run local shell processes expected to outlive the session under `nohup` with a
   log and `disown`. Give the launch absolute paths or an explicit `cd` inside
   it, then confirm the PID is alive and the log shows no startup error before
-  waiting on it. Monitor without a busy polling loop. Detect exit from the PID
-  captured at launch (`$!`, then `kill -0` or `wait`); a wait on the job's
-  declared output must also stop when that PID dies, so a crashed job cannot
-  leave it waiting forever. Do not detect exit or signal a process with
+  waiting on it. Detect exit from the PID captured at launch (`$!`), and make a
+  wait on the job's declared output stop when that PID dies, so a crashed job
+  cannot leave it waiting forever. Do not detect exit or signal a process with
   `pgrep -f`, `pkill -f`, or `ps | grep` on text that the running command itself
   contains: it matches itself, so a waiter never sees the exit and a kill ends
-  the agent's own shell. Signal by captured PID. For agent-owned
-  work expected to run 2–20 minutes, wait 2–3 minutes between status checks;
-  for longer work, use roughly 10% of the estimated remaining duration, capped
-  at 10 minutes. Use a shorter check only when completion is expected within
-  two minutes, the job emits a failure signal, or the user asks for status.
+  the agent's own shell. Signal by captured PID. For agent-owned work, wait by
+  blocking on the process, not by polling it: run one foreground command that
+  returns when the job exits, such as `timeout 240 tail --pid=<pid> -f /dev/null`,
+  and repeat it until the job ends. Keep each block under four minutes so the
+  prompt cache stays warm, since every request re-reads the whole context and a
+  longer gap re-writes it. Do not yield to a background notification: a
+  non-interactive run has no later turn, so the answer would go out while the
+  job still runs. Check sooner only when the job emits a failure signal or the
+  user asks for status.
 - For an asynchronous job the agent starts (`srun`, `sbatch`, or `nohup`), do
   not end the active request merely because the job is running. Monitor it to a
   terminal state, inspect its declared output on success, and report the
