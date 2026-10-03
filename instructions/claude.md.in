@@ -96,6 +96,9 @@ same name, except for these command adapters:
   `python` is often absent even where `pixi shell` would provide it. Resolve it
   explicitly (`command -v`, `python3`, `pixi run python`) rather than letting the
   step fail silently mid-script.
+- A background-task "completed" notification for a command that launched its
+  job with a trailing `&` reports the launcher shell exiting, not the job.
+  Judge the job by its captured PID and log.
 - When temporarily mutating tracked files (mutation testing, bisect probes), do
   apply/run/restore in one script, assert the mutation actually applied before
   running anything, and restore unconditionally rather than only on the success

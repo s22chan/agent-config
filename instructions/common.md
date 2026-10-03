@@ -282,7 +282,15 @@
 - Describe concrete inputs, actions, and outcomes before applying a pattern or
   smell label. Prefer literal mechanisms over metaphors that obscure behavior.
 - Run local shell processes expected to outlive the session under `nohup` with a
-  log and `disown`. Monitor them without a busy polling loop. For agent-owned
+  log and `disown`. Give the launch absolute paths or an explicit `cd` inside
+  it, then confirm the PID is alive and the log shows no startup error before
+  waiting on it. Monitor without a busy polling loop. Detect exit from the PID
+  captured at launch (`$!`, then `kill -0` or `wait`); a wait on the job's
+  declared output must also stop when that PID dies, so a crashed job cannot
+  leave it waiting forever. Do not detect exit or signal a process with
+  `pgrep -f`, `pkill -f`, or `ps | grep` on text that the running command itself
+  contains: it matches itself, so a waiter never sees the exit and a kill ends
+  the agent's own shell. Signal by captured PID. For agent-owned
   work expected to run 2–20 minutes, wait 2–3 minutes between status checks;
   for longer work, use roughly 10% of the estimated remaining duration, capped
   at 10 minutes. Use a shorter check only when completion is expected within
