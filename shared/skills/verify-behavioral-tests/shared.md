@@ -141,7 +141,11 @@ For persistent state, exercise the complete lifecycle:
    gate, disable the transformation, corrupt selection or scaling, or suppress
    the state update; the owning test must fail for the intended reason.
 4. Strengthen or remove tests whose relevant mutation survives. Do not mutate
-   incidental details merely to raise a score.
+   incidental details merely to raise a score. A surviving change to a constant,
+   lookup-table entry, or limit is a finding only when something independent of
+   the code states the right value, such as a boundary the contract names or a
+   relation derived from other inputs. A test that restates the value only
+   repeats the code.
 5. Keep each behavior test in one owning location.
 
 Mutation sensitivity does not expand the supported contract. When removing a
