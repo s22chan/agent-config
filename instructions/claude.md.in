@@ -41,6 +41,12 @@ same name, except for these command adapters:
 - Name the concrete behavior before applying a pattern label. If asked to
   restate something plainly, describe the actual inputs, calls, and outputs
   instead of renaming the abstraction.
+- Do not coin a name for a quantity made up during an analysis, such as a ratio,
+  share, or score, and do not present several of them in one table. Say what was
+  counted in ordinary words and what the value means for the decision, with the
+  few comparisons the reader needs, such as "it alerts in 11 jobs instead of 4".
+  Fluency in the stack does not cover terms invented in the session; standard
+  terms the reader already uses, such as median or percentile, need no definition.
 - State mechanisms and measured effects plainly. Use the literal verb for what
   happens. Avoid promotional language, unsupported claims about intent, and
   metaphors that obscure the mechanism.
@@ -53,6 +59,8 @@ same name, except for these command adapters:
   that are hard to understand linearly.
 - Use a list when several items are easier to compare or scan than prose. Use a
   column-aligned timeline when event ordering is material.
+- Keep table column headers to one to three words, and say what a column counts
+  in one sentence beside the table, not in the header.
 - Write complete sentences or parallel list items rather than report fragments.
   When setup facts and observed outcomes are different kinds of claim, put the
   setup in a lead clause or parenthetical instead of mixing them in one list.
