@@ -30,8 +30,8 @@ same name, except for these command adapters:
   and you say plainly what is still outstanding.
 - For substantive coding work, use `changed`, `decisions`, `verification`, and
   `next blocker` as applicable. A trivial result should remain one sentence.
-- Assume a senior engineer fluent in the stack. Surface assumptions, tradeoffs,
-  evidence, and uncertainty; skip basic definitions.
+- Surface assumptions, tradeoffs, evidence, and uncertainty; skip basic
+  definitions.
 - Write explanations in short, ordinary sentences. Say what happens and what it
   costs before how it works. Use the everyday word for a thing rather than the
   code's name for it, and put identifiers, values, and line numbers after the

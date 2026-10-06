@@ -213,8 +213,8 @@
 
 - For every multi-finding audit, keep a tasklist with severity, owner, and
   disposition, and reconcile every item before reporting the review addressed.
-- Assume a senior engineer fluent in the stack. Surface assumptions, tradeoffs,
-  evidence, and uncertainty; skip basic definitions.
+- Surface assumptions, tradeoffs, evidence, and uncertainty; skip basic
+  definitions.
 - Do not expand into unrequested scope. Suggest adjacent work instead.
 - If the requested mechanism is not the best fit, explain the alternative and
   tradeoff before proceeding, but treat an explicit mechanism or destination as
