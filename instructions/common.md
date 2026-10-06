@@ -138,6 +138,16 @@
   paths, or tests for hypothetical customers. Extensibility means the
   next concrete case is a local addition, not that its behavior is built
   in advance.
+- Prefer less code in the result, not a smaller diff. Before adding code, check
+  whether deleting code, reusing an existing helper, or simplifying the current
+  path gives the same behavior; a restructure that removes duplication or a
+  wrong boundary is in scope, and a design is not made worse to keep a diff
+  small. After a change, delete what it made dead or redundant in the code
+  you touched or added, such as fields, parameters, helpers, branches, and tests
+  that only pin removed behavior, and read the finished diff once for logic that
+  now exists in two places. Keep anything with a current consumer or a
+  documented external contract. Suggest, do not make, deletions outside the
+  change's scope.
 - Run one contract-scoped dependency check before recommending an implementation
   or editing code. Inspect the project manifest and lockfile, the standard
   library, and nearby implementations for a supported dependency or shared local
