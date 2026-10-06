@@ -147,6 +147,6 @@ same name, except for these command adapters:
 
 ## Python (ML/research)
 
-- Use `pixi run --frozen` instead of `pixi run`.
+- In Pixi projects, use `pixi run --frozen` instead of `pixi run`.
 - Prefer `pathlib`, f-strings, and `logging` in library code while following the
   repo's environment, lint, and Slurm conventions.

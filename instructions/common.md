@@ -16,7 +16,9 @@
 ## Verification
 
 - In Pixi projects, default to `pixi run --frozen ...`; run pytest as
-  `pixi run --frozen pytest ...`.
+  `pixi run --frozen pytest ...`. In a uv project (a `uv.lock` and no Pixi
+  manifest), use `uv run --frozen ...` and sync dev tools with
+  `uv sync --frozen --all-extras`.
 - Apply every workflow whose description matches the task. When several apply,
   combine them by ownership: use
   `design-python-code` for production structure, `verify-behavioral-tests`
