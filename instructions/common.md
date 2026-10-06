@@ -193,6 +193,10 @@
 
 - Never run `gh`; describe the PR title/body/branch for the user to submit in the
   GitHub web UI.
+- Write a PR title in the same convention as the repository's commit
+  subjects, checked from recent `git log --oneline`; use Conventional Commits
+  (`type(scope): subject`) when there is none. Keep that convention in every
+  prompt or handoff that asks another session to write a title or commit.
 - Select a repository with the shell working directory or `git -C <repo>`;
   arguments after `--` are pathspecs within that repository. When one shell
   command inspects multiple repositories, anchor every Git invocation
