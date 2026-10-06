@@ -28,6 +28,11 @@ invariant, state transition, ownership boundary, or current variation it owns.
 Price that value against call hops, types, validation, hidden state, tests, and
 navigation cost.
 
+Write code a reader follows without help: plain control flow over cleverness,
+names that state domain meaning, and one idea per level of indirection. Accept
+a few more lines when they make the code easier to read; do not compress it into
+dense one-liners, nested comprehensions, or implicit tricks to save lines.
+
 ## Design by decision owner
 
 For a substantial change, inventory each decision's:
