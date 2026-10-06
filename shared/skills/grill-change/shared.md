@@ -117,7 +117,8 @@ Treat parser, matcher, regex, and decoder changes as input-boundary changes:
 - Separate a valid finding from its proposed remedy. Price every remedy against
   the authoritative base, including machinery, state, recurring cost, failure
   modes, and tests. Treat diff-added machinery as removable, not sunk cost, and
-  choose the smallest change that prevents the supported failure.
+  choose the remedy that removes the cause and leaves the least code, which is a
+  redesign when that is smaller than the patches it replaces.
 - Use dependency and sibling-implementation evidence already established for the
   same task, contract, and revision. Inspect further only when that evidence is
   absent, a dependency-search reopening condition applies, or the review
