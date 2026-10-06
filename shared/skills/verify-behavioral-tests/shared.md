@@ -108,6 +108,13 @@ For persistent state, exercise the complete lifecycle:
 - For a configurable threshold, window, bucket, or limit, use at least two
   settings that produce different outputs for one purpose-built input. Test the
   boundary once at its predicate owner and configurability once at its consumer.
+- Group cases that differ only in input and expected outcome into one
+  parametrized test with readable ids. Keep a separate test only when its setup
+  or assertions differ.
+- Before relying on a test that expects nothing to happen (no alert, no error, no
+  change), confirm the same setup can produce the outcome: flip the one
+  precondition the test depends on and see it fail. A negative case whose input
+  cannot trigger the behavior passes whatever the code does.
 - Derive orchestration states from the production caller rather than enumerating
   private Boolean conjuncts. Report an ownership mismatch instead of expanding
   scope when moving the gate is not authorized.
