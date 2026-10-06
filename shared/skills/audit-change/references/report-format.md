@@ -32,7 +32,7 @@ Do not rerun lanes or expand the finding set merely to fill the format.
 <one executed step or relevant Git fact per line, annotated with file:line,
 commit SHA, or range>
 
-**Fix** — the smallest change that prevents the failure; give exact replacement
+**Fix** — the simplest change that removes the cause; give exact replacement
 text when it is short.
 ```
 
