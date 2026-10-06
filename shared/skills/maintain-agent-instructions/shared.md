@@ -89,3 +89,19 @@ require the evaluator to derive the classification from the edited rule. If
 independent evaluation is unavailable or unauthorized, report the behavioral
 fix as unverified. Ask instead of encoding a category that cannot distinguish
 the known included and excluded cases.
+
+Reproduce the condition under which the incident arose, not a proxy for it. When
+the incident happened while writing, have a fresh agent write the artifact from
+the same inputs the author had, such as working notes, the diff, and the loaded
+rules. Asking an agent to check a given passage shows only that the rule is
+understood, and it can pass while authoring still fails. Give the evaluator only
+what the original author had: not the plain wording of the intended fix, not the
+expected verdict, and not the user preference the rule exists to supply. Copy the
+user's quoted words and paths verbatim.
+
+Before testing an edit, run the unedited instructions through the same setup and
+confirm the incident recurs; a setup the unedited rules already pass cannot show
+an improvement. Then run edited and unedited arms with matched inputs and equal
+sample counts, and report the counts, not a verdict. When the unedited rate is
+well above zero, a few samples per arm cannot separate a modest effect from
+chance. Say so, and ask before running a test large enough to.
