@@ -3,8 +3,7 @@
 Cross-project guidance loaded every session. Project-specific commands and
 conventions belong in each repo's `./CLAUDE.md`.
 
-**Precedence: explicit chat instructions > project `./CLAUDE.md` > this file >
-memories.**
+**Precedence: explicit chat instructions > this file > project `./CLAUDE.md` > memories.**
 
 ## Claude workflow routing
 

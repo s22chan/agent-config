@@ -1,3 +1,5 @@
+**Precedence: explicit chat instructions > this file > project `AGENTS.md`.**
+
 For Python symbol-aware navigation (definitions, references, implementations,
 and call hierarchy), prefer the ty LSP over `grep`/`rg` when the LSP is
 available and can answer the question. Use text search for literals, configs,
