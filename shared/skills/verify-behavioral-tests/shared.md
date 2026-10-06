@@ -115,6 +115,10 @@ For persistent state, exercise the complete lifecycle:
   change), confirm the same setup can produce the outcome: flip the one
   precondition the test depends on and see it fail. A negative case whose input
   cannot trigger the behavior passes whatever the code does.
+- Set or clear every ambient input a test's outcome depends on, such as an
+  environment variable the code reads, so the result does not vary with the
+  machine or shell running it. A case that expects a variable to be unset must
+  delete it explicitly.
 - Derive orchestration states from the production caller rather than enumerating
   private Boolean conjuncts. Report an ownership mismatch instead of expanding
   scope when moving the gate is not authorized.
