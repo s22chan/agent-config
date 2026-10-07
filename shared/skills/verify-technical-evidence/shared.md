@@ -40,6 +40,16 @@ Verify a concrete illustrative example or label it hypothetical. Before quoting
 prose as evidence, confirm that its subject and surrounding context support the
 claim.
 
+Before reporting a pattern or candidate cause found while explaining a symptom,
+estimate the most it could contribute to that symptom, in the symptom's units
+and time window, and compare it with the known larger contributors. Report it as
+a finding only when that bound is a material share of the symptom; otherwise
+give it one line or omit it. Do not count a timestamp match or a matching
+schedule as support unless the matched state is rare: a report that lands in a
+state occupying half the time is uninformative. This does not limit an
+exhaustive enumeration the user requested or a pattern the user asks about by
+name.
+
 Construct verification inputs so every relevant branch or bin runs. Do not rely
 on random coverage or comparisons that silently skip empty or NaN cases.
 
