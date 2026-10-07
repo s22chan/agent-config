@@ -57,9 +57,6 @@
 - Before creating a source file, read the applicable project style rules and
   do not add template boilerplate unless those rules permit it. Verify the
   final diff for prohibited constructs.
-- When documenting a design chosen over a familiar simpler alternative, state
-  the decisive reason that alternative is insufficient, not only the chosen
-  mechanism.
 - Default to no comment. Keep only a non-obvious constraint, invariant,
   workaround, derivation, or decision that a fluent reader cannot recover from
   the code.
@@ -97,13 +94,6 @@
   mechanism. If a comment already captures the non-obvious invariant, keep it
   unchanged; when only a label or step number becomes stale, remove only that
   stale text unless the prose has a material accuracy defect.
-- For ordering or synchronization comments, state only the non-local
-  postcondition that following code may rely on, such as which participants
-  must reach a point before another can continue. Omit local effects already
-  apparent from the adjacent operation. Name the specific operation that
-  establishes the guarantee when a generic reference would be ambiguous, but
-  mention its internal synchronization mechanism only when that mechanism is
-  itself a non-obvious, load-bearing constraint.
 - When variants, including authority/fallback paths, have different observable
   outputs, document each branch's contract instead of promoting one variant's
   behavior to an umbrella claim. For a fallback, name the primary authority,
@@ -111,10 +101,6 @@
 - Keep docstrings to a direct summary plus a short why only when the why passes
   the same non-obviousness test. Leave existing correct prose untouched unless
   the code change makes it inaccurate.
-- Make a docstring's why state the durable constraint and consequence a caller
-  needs, not transient investigation history. Keep environment or benchmark
-  detail only when it establishes a supported boundary or rules out a familiar
-  alternative.
 - Match an existing Python file's majority docstring convention when editing
   it. For a newly created file, or one with no established convention, use
   modern Google-style docstrings (`Args:`, `Returns:`, and `Raises:` only when
