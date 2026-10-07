@@ -105,3 +105,15 @@ an improvement. Then run edited and unedited arms with matched inputs and equal
 sample counts, and report the counts, not a verdict. When the unedited rate is
 well above zero, a few samples per arm cannot separate a modest effect from
 chance. Say so, and ask before running a test large enough to.
+
+## Record the scenario
+
+A commit that adds, changes, or removes a rule records the scenario behind it,
+so a later edit can replay it and judge whether the rule still earns its place.
+The body gives the raw trigger (the user's quoted words or the exact input),
+what the agent did, what it should have done, and the test arms with their
+counts. When the scenario is longer than a few lines, commit it as a replayable
+file under `scenarios/<topic>.md` in the same commit and name the file in the
+body. Say "no observed scenario" when there is none, and record the source of a
+rule imported from elsewhere. A wording or typo fix to an existing rule needs no
+new scenario.
