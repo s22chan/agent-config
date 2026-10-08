@@ -177,6 +177,26 @@
 
 ## Git and review prose
 
+- Aim to keep every review branch under 300 changed lines, counting additions
+  plus deletions against its declared review base, including tests,
+  documentation, and handwritten migrations. Exclude mechanically generated
+  lockfiles, assets, and migration output from this target; report their size
+  separately and verify their inputs and generation. A filename or bulk change
+  alone does not establish that content is generated. Check the size while
+  planning and before handoff. At 300 lines or more, split into logical branches.
+  If no coherent split preserves correctness, explain the indivisible change
+  and ask before exceeding the target.
+- Give each branch one reviewer-visible purpose. Separate independently
+  shippable refactors, bug fixes, and features, and keep unrelated formatting,
+  linting overhauls, and mass renames in housekeeping branches. Split by behavior
+  and ownership rather than arbitrary file or line boundaries; keep each change
+  with the tests that prove it.
+- Prefer independent branches when each can ship from the target base. Use
+  stacked branches when a later layer consumes a contract introduced by an
+  earlier layer, such as a service requiring a new database schema or an API
+  requiring that service. Declare each branch's base and dependency, and make
+  it verifiable from that base. Size alone or anticipated merge conflicts do
+  not justify stacking.
 - Never run `gh`; describe the PR title/body/branch for the user to submit in the
   GitHub web UI.
 - Write a PR title in the same convention as the repository's commit
