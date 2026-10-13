@@ -150,6 +150,21 @@ tags.
   per observable output or effect: its authority and invariant, semantic inputs,
   consumer, state lifetime, and failure representation. A shared record, module,
   or configuration object does not establish one governing decision.
+- When changed code sends or receives values across a process or service
+  boundary, or serializes values for storage, trace the shipped representation
+  before dispatch: application objects, selected serializer and format version,
+  protocol envelope or file framing, and concrete transport or storage path.
+  Resolve these from the pinned or installed implementation and its effective
+  configuration or negotiation; an application dictionary or JSON-compatible
+  shape does not establish the encoded format. Include compression,
+  size-dependent inline versus blob routing, and conversion, copy, buffering,
+  and decoding stages. Put the trace and supporting dependency excerpts in the
+  packets for the selected lanes that assess correctness, design, or performance,
+  within the existing evidence budgets. Distinguish structural costs from
+  measured latency or throughput, and record unavailable runtime selection or
+  dependency evidence as a gap. Local in-memory values with no serialization or
+  handoff need no transport trace; this check does not authorize live services,
+  benchmarks, or other operations forbidden by the audit.
 - When the root has resolved a relevant successor as evidence, include its
   relevant code in the index by ref or evidence-file path. A consumer in a
   successor is evidence for deciding a claim, not an extension of the audited
