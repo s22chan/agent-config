@@ -21,3 +21,10 @@ helper can own the invariant part. Report a shared mutable double or avoidable
 repeated changed wiring as a maintenance obligation; do not report distinct
 scenario data, an explicit dependency repeated across independent harnesses,
 or untouched inherited setup.
+
+Report duplicated logic only after reading the code around each copy. State what
+the surrounding branch or function does besides the repeated expression, and
+show that one owner could serve every copy without changing which branch runs,
+which side effects fire, or what each caller's contract is. When the copies sit
+in different branches or serve different purposes, drop the finding or report
+only the repeated expression with that limit stated.
