@@ -61,3 +61,12 @@ SQLite as the alternative.
 The final wording was tuned on the incident prompt. Neither equivalent prompt
 reproduced the incident under the unedited rules, so generalization beyond the
 incident is not shown. Five samples per arm cannot bound a small effect.
+
+## Rerun without session context
+
+The arms above ran with session-start hooks and auto-memory on, which injects this
+machine's handoff and memory notes (see `evaluator-context-contamination.md`).
+The incident prompt was rerun with both off, 5 samples per arm: unedited rules
+5 of 5 recur (each asks the user to approve deferring the catalog and compares
+the two figures), final wording 0 of 5 (all keep the catalog; three reorder the
+work without asking). The result matches the earlier arms.
