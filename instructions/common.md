@@ -126,6 +126,14 @@
   paths, or tests for hypothetical customers. Extensibility means the
   next concrete case is a local addition, not that its behavior is built
   in advance.
+- Keep evaluation hygiene in the evaluation. A condition that only keeps a
+  replay or leave-one-out test honest, such as holding out the target's own or
+  related records or cutting peers by time, belongs in the harness that builds
+  its input. Do not carry it into a production API, filter, guard, or plan
+  unless the production consumer faces the same condition. Before choosing a
+  pool or its exclusions, state what the consumer sees when it runs, and treat a
+  related record, such as the target's own earlier attempt, as input when it
+  would help that consumer.
 - Prefer less code in the result, not a smaller diff. Before adding code, check
   whether deleting code, reusing an existing helper, or simplifying the current
   path gives the same behavior; a restructure that removes duplication or a
