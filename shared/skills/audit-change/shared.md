@@ -300,6 +300,10 @@ cause data loss, irreversible effects, or a security boundary violation.
 Preserve an evidence gap when promised predecessor content cannot yet be
 inspected or derived.
 
+When a candidate's impact depends on a consumer or rule the evidence does not
+contain, such as an alert expression or retention setting, report it as an
+evidence gap that names what to read, not as a graded finding.
+
 For a candidate that adds or removes a backend capability, apply the
 verify-technical-evidence workflow and trace producer availability,
 acquisition, and downstream decoding or classification separately. A base query proves that the
