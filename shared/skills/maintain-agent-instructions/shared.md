@@ -96,8 +96,10 @@ the same inputs the author had, such as working notes, the diff, and the loaded
 rules. Asking an agent to check a given passage shows only that the rule is
 understood, and it can pass while authoring still fails. Give the evaluator only
 what the original author had: not the plain wording of the intended fix, not the
-expected verdict, and not the user preference the rule exists to supply. Copy the
-user's quoted words and paths verbatim.
+expected verdict, and not the user preference the rule exists to supply. Do not
+offer the edit's outcome categories as answer options or output labels: ask for
+the artifact the real process produces, in its native format, and classify it
+yourself. Copy the user's quoted words and paths verbatim.
 
 Context the evaluator loads by itself, such as startup hooks, memory, handoff
 notes, and project files, is input too: it can hold the incident, the fix, or
