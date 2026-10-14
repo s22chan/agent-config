@@ -125,7 +125,9 @@
   logic. Do not add unused modes, flags, abstractions, compatibility
   paths, or tests for hypothetical customers. Extensibility means the
   next concrete case is a local addition, not that its behavior is built
-  in advance.
+  in advance. When evidence or a stated requirement already shows one
+  behavior or value is better for every current consumer, make it the
+  behavior; add a parameter only when current consumers need different values.
 - Keep evaluation hygiene in the evaluation. A condition that only keeps a
   replay or leave-one-out test honest, such as holding out the target's own or
   related records or cutting peers by time, belongs in the harness that builds
