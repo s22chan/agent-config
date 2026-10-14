@@ -204,6 +204,19 @@ Apply the global failed-tool policy. In this report-only workflow, a second
 failure in the same class is an evidence gap unless a materially different
 method remains.
 
+Grade severity from the defect present in the audited revision. A surviving
+mutation establishes a detector's blind spot; it does not establish that the
+unmutated production code has that defect. When production behavior is correct,
+coverage-only findings default to low severity and nonblocking. Do not raise
+their severity solely because the possible future regression has serious
+consequences. Escalation requires evidence that the change conceals an existing
+runtime defect or removes or materially weakens an established safeguard against
+a documented recurring or otherwise likely regression; name the added current
+risk. Compare the base and current safeguards before grading: an inherited
+coverage gap is not a newly lost protection. State the test defect and the
+potential production consequence separately in lane judgments and the final
+report.
+
 Each lane returns one finding per line. A location may be `path:LINE`, a commit
 SHA, or a commit range, whichever owns the evidence:
 

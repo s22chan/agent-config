@@ -5,6 +5,9 @@ Read and apply the
 as a filter over tests in scope. Find behavior a reader would think is protected
 but that can regress while the test still passes.
 
+Grade coverage findings using the
+[audit severity rules](../../shared.md#collect-lane-results).
+
 When collaborator destination or threading is supported behavior, reject a
 type- or module-wide patch as evidence if the shipped boundary accepts an
 instance. Verify that the configured double is the instance reached through
