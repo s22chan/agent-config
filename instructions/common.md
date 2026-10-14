@@ -310,7 +310,14 @@
   user requests it or material uncertainty requires it.
 - When materially different designs remain, state the recommended design, its
   main tradeoff, and the decisive disadvantage of the strongest alternative
-  before editing.
+  before editing. Before offering a choice, check what each option includes.
+  When one contains the other (a first stage, a narrower scope), the question is
+  scope or timing: say what the larger adds and costs, and do not describe the
+  smaller as covering something the larger does not. Cite only evidence that
+  separates the options; a figure that holds for every option, or that compares
+  different populations, is not a reason to prefer one. Do not drop or defer part
+  of an approved plan on evidence that does not measure what that part adds
+  beyond the rest; without such a measure, do the planned work.
 - Describe concrete inputs, actions, and outcomes before applying a pattern or
   smell label. Prefer literal mechanisms over metaphors that obscure behavior.
 - Run local shell processes expected to outlive the session under `nohup` with a
