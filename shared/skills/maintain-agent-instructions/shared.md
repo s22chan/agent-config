@@ -99,6 +99,12 @@ what the original author had: not the plain wording of the intended fix, not the
 expected verdict, and not the user preference the rule exists to supply. Copy the
 user's quoted words and paths verbatim.
 
+Context the evaluator loads by itself, such as startup hooks, memory, handoff
+notes, and project files, is input too: it can hold the incident, the fix, or
+earlier results from the session that wrote the rule. Remove it, supply what the
+author had in the prompt, and discard an arm whose output states a fact it was
+not given.
+
 Before testing an edit, run the unedited instructions through the same setup and
 confirm the incident recurs; a setup the unedited rules already pass cannot show
 an improvement. Then run edited and unedited arms with matched inputs and equal
