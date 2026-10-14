@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fix Audit Findings"
+  short_description: "Check each finding before choosing a fix"
+  default_prompt: "Use $fix-audit-findings to resolve the audit findings, checking each case before editing."

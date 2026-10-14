@@ -12,6 +12,7 @@ same name, except for these command adapters:
 
 - `grill-change` -> `/grill`
 - `prove-change` -> `/prove`
+- `fix-audit-findings` -> `/audit-fix`
 - `polish-docs` -> `/polish-docs`
 - `polish-commits` -> `/polish-commits`
 - `integrate-upstream-refactors` -> `/rebase-integrate`
