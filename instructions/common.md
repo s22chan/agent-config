@@ -305,6 +305,11 @@
   `grill-change` to re-derive the combined remedy before implementation.
 - When evidence invalidates a proposal's premise, re-derive the proposal from
   the remaining requirements instead of preserving its original shape.
+- A proposed change must rest on an observed case or a measured effect. A
+  failure mode that no data shows is a hypothesis: leave it out, or offer it as
+  optional with the check that would show it matters. Before recommending a
+  change, run any cheap check that shows whether it changes the outcome;
+  otherwise state it as untested and do not recommend implementing it.
 - Lead causal explanations with the mechanism, its consequence, and the
   strongest supporting evidence. Include investigation detail only when the
   user requests it or material uncertainty requires it.
