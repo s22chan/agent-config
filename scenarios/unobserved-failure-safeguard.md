@@ -7,8 +7,10 @@ scheduled step a regression and proposed bounding an exemption. A later replay
 showed the "stall" was a job handoff, so the premise was gone. The user then
 asked whether the exemption could simply stay, and the agent answered that it
 would "go with the assumption plus the 2-hour ceiling, and drop GC. Do you want
-me to implement that, with tests?" The ceiling guarded a failure no data showed
-(a hang at a scheduled step: 0 of 29 observed). The GC drop rested on four gaps
+me to implement that, with tests?" The ceiling guarded a failure no data was
+thought to show (none of the 29 hung runs found had its next row due at a
+scheduled step; see "Later finding" for a hang inside an eval that this count
+missed). The GC drop rested on four gaps
 and an argument; the replay that decides it was cheap and was run only after the
 user asked. The user:
 
@@ -22,6 +24,46 @@ user asked. The user:
 
 The replay run afterwards (4,924 polls without the GC pauses exempted) changed
 no alert, so the GC change had no measured effect.
+
+## Later finding
+
+After the rule was committed, one silent run outside the 29 turned out to be a
+hang inside an eval. It was left out of the 29 because the GPU query for its job
+returned no samples (the job's `slurm_job_gpu_mapping` series stops mid-run
+while the job ran on, so "no GPU samples" is missing telemetry, not idle GPUs).
+Job 66434, run `wh9z2ibq` (4 nodes, a requeue storm of about 27 instances):
+
+- The last row was step 2993 at 06:02:46. Rows come about every 4 seconds per
+  step, so step 3000 (`eval_interval` 500) was due about 30 seconds later; the
+  run's three earlier evals took 3.2 to 4.4 minutes.
+- At 06:35:10 an NCCL watchdog reported a one-element all-reduce that had run
+  1,800,026 ms (the 30 minute limit), and the job ended FAILED at 06:38. The
+  log's last non-retry lines before the timeout are a validation progress bar at
+  100%.
+- The busiest node held 585 to 592 GiB used before the silence; major faults
+  went from 0 to 81 per second at 06:06 and 530 to 580 per second after, with
+  memory stalls up to 20%. Swap is 0 on the node. Slurm's per-task peak memory
+  for the step is 73.9 GB, about 564 GiB for 8 tasks against a 512 GiB limit.
+
+What this changes in the incident's reasoning:
+
+- "No data shows an eval can hang" was wrong. One observed case exists, 1 of 30
+  silent runs.
+- It was not hidden by the scheduled-step exemption: the detector estimates the
+  next row from the median step advance (2 here, since rows alternate between 1
+  and 9 steps), so the next row was due at step 2995 and did not touch step 3000.
+  With an estimate of 9 or more it would have been exempt. No observed hang was
+  hidden by the exemption.
+- A 2-hour ceiling would not have helped: the watchdog ended the job after 35
+  minutes of silence. A bound that matters would have to sit near the run's own
+  eval time (3 to 4 minutes here).
+- The alert at 06:20 (18 minutes lost) came only from the young-run path, which
+  judged the run against 2 earlier attempts. The run had under 4 hours of rows, so
+  the own-history detector and the earlier version could not judge it.
+
+The decision on the ceiling is unchanged, with a different reason: there is no
+observed case where the exemption hid a hang, not that evals do not hang. The
+rule itself needs no change.
 
 ## Existing guidance
 
@@ -178,7 +220,8 @@ For the incident, 3 of 4 against 0 of 4 gives Fisher's exact p of about 0.14
 
 ## Limits
 
-No included case in another domain recurs under the unedited rules, so
+The "0 of 29" count that appears in the replay prompt was true of the 29 and
+incomplete; see "Later finding". No included case in another domain recurs under the unedited rules, so
 generalization beyond the incident is not shown. The sessions could not run
 checks, so the cheap-check clause was tested only on what it blocks when a check
 is unavailable. The drafts were loaded through a project file, not placed in the
