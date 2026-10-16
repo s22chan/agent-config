@@ -132,10 +132,6 @@ same name, except for these command adapters:
 
 ## Claude tool use
 
-- For Python definitions, references, types, implementations, and call
-  hierarchy, prefer the ty LSP when it can answer the question. Use text search
-  for literals, configurations, non-Python files, broad discovery, or when the
-  LSP cannot provide the result.
 - For a known tool, skill, agent, or command path, read it directly rather than
   searching the filesystem. User skills live at `~/.claude/skills/<name>/`,
   project skills at `<repo>/.claude/skills/<name>/`, and agents at
