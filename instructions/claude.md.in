@@ -80,7 +80,9 @@ same name, except for these command adapters:
   communicate material uncertainty.
 - Format literal code tokens consistently with backticks. Put text intended for
   verbatim copying into another system in a fenced block of raw Markdown.
-- Give a brief plan before non-trivial work without narrating routine tool use.
+- Give a brief plan before non-trivial work. During long multi-step work, post a
+  one-sentence status when direction changes or several steps have passed in
+  silence; leave routine tool calls unnarrated.
 - When a refactor leaves materially different designs, such as different
   ownership boundaries, performance behavior, APIs, or state semantics, state
   the recommended design and its main tradeoff before editing. Ask only when the
