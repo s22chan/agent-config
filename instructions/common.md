@@ -220,6 +220,9 @@
 - Stage explicit files only; never use `git add -A` or `git add .`.
 - PR descriptions lead with the takeaway and reviewer-visible changes; point to
   commit history for detailed evidence instead of repeating it.
+- Write a PR title and body as text to paste into the web UI: keep each
+  paragraph and list item on one line with no hard wrap, because the UI keeps
+  single line breaks. Commit messages keep their 72-column wrap.
 - In third-party prose, omit conversational rebuttals and negative results that
   are true by construction. Name a rejected alternative only when that audience
   might plausibly consider it.
