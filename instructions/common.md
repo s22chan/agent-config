@@ -253,15 +253,10 @@
   invariant protocol controls unless they are needed to reproduce or interpret
   the result, or are themselves the subject of the comparison.
 - Order multi-finding reports by operational consequence and action priority,
-  not by lane, proof freshness, or arrival order. Keep impact and likelihood
+  not by category, lane, proof freshness, or arrival order. Keep impact and likelihood
   separate when they differ.
 - Name an isolated branch, test, or report from its own behavior. Do not name
   an excluded sibling optimization merely to describe its absence.
-- Reuse one fresh agent through successive bounded turns only when the work
-  depends on the same compact context and retained evidence remains relevant to
-  the next turn. Use fresh contexts for independent review lanes or when prior
-  tool output would materially enlarge later requests without helping their
-  judgment. Follow a narrower workflow's explicit context boundary.
 - Treat parallelism as scheduling, not as a token-saving or token-spending
   mechanism by itself. When independent tasks require fresh contexts, run them
   concurrently only when slots are available and the owning workflow benefits
@@ -286,6 +281,8 @@
   Start a fresh agent when one of those changes, when an independent judgment
   is required, when retained context would bias the task, or when unrelated
   accumulated evidence costs more than repeating the task's bounded setup.
+  Use fresh contexts for independent review lanes, and follow a narrower
+  workflow's explicit context boundary.
 - After changing an agent definition, model, or reasoning setting, use a newly
   created session and agent and verify the effective setting before relying on
   its cost or capability.
@@ -313,9 +310,10 @@
   optional with the check that would show it matters. Before recommending a
   change, run any cheap check that shows whether it changes the outcome;
   otherwise state it as untested and do not recommend implementing it.
-- Lead causal explanations with the mechanism, its consequence, and the
-  strongest supporting evidence. Include investigation detail only when the
-  user requests it or material uncertainty requires it.
+- Lead a requested causal explanation with the cause-to-effect chain: mechanism,
+  consequence, then the strongest supporting fact. Include investigation detail
+  or file context only when the user asks for verification or it is needed to
+  communicate material uncertainty.
 - When materially different designs remain, state the recommended design, its
   main tradeoff, and the decisive disadvantage of the strongest alternative
   before editing. Before offering a choice, check what each option includes.
@@ -327,7 +325,9 @@
   of an approved plan on evidence that does not measure what that part adds
   beyond the rest; without such a measure, do the planned work.
 - Describe concrete inputs, actions, and outcomes before applying a pattern or
-  smell label. Prefer literal mechanisms over metaphors that obscure behavior.
+  smell label. If asked to restate something plainly, describe the actual
+  inputs, calls, and outputs instead of renaming the abstraction. Prefer literal
+  mechanisms over metaphors that obscure behavior.
 - Run local shell processes expected to outlive the session under `nohup` with a
   log and `disown`. Give the launch absolute paths or an explicit `cd` inside
   it, then confirm the PID is alive and the log shows no startup error before

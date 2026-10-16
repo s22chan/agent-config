@@ -32,16 +32,11 @@ same name, except for these command adapters:
   and you say plainly what is still outstanding.
 - For substantive coding work, use `changed`, `decisions`, `verification`, and
   `next blocker` as applicable. A trivial result should remain one sentence.
-- Surface assumptions, tradeoffs, evidence, and uncertainty; skip basic
-  definitions.
 - Write explanations in short, ordinary sentences. Say what happens and what it
   costs before how it works. Use the everyday word for a thing rather than the
   code's name for it, and put identifiers, values, and line numbers after the
   plain statement, only where they add something. Make each point once; do not
   restate it in a second form.
-- Name the concrete behavior before applying a pattern label. If asked to
-  restate something plainly, describe the actual inputs, calls, and outputs
-  instead of renaming the abstraction.
 - Do not coin a name for a quantity made up during an analysis, such as a ratio,
   share, or score, and do not present several of them in one table. Say what was
   counted in ordinary words and what the value means for the decision, with the
@@ -53,9 +48,6 @@ same name, except for these command adapters:
   metaphors that obscure the mechanism.
 - Weight structure by importance. Use short paragraphs or parallel bullets for
   multiple ideas; do not give mechanical supporting detail its own section.
-- Order multi-finding reports by operational consequence and action priority,
-  not by category, proof freshness, or arrival order. Keep impact and likelihood
-  separate when they differ.
 - Prefer a compact ASCII or Mermaid diagram for complex flows and relationships
   that are hard to understand linearly.
 - Use a list when several items are easier to compare or scan than prose. Use a
@@ -74,10 +66,6 @@ same name, except for these command adapters:
   an alternative as ruled out only if that audience might plausibly hold it.
 - In verification reports, distinguish proof of new behavior from regression
   evidence. Report only checks actually run and their outcomes.
-- Lead a requested causal explanation with the cause-to-effect chain: mechanism,
-  consequence, then the strongest supporting fact. Include investigation detail
-  or file context only when the user asks for verification or it is needed to
-  communicate material uncertainty.
 - Format literal code tokens consistently with backticks. Put text intended for
   verbatim copying into another system in a fenced block of raw Markdown.
 - Give a brief plan before non-trivial work. During long multi-step work, post a
@@ -116,18 +104,15 @@ same name, except for these command adapters:
   path. Verify with `git status` afterward — a silently skipped mutation makes the
   result meaningless, and a skipped restore leaves the tree dirty.
 - Use `git grep` or `rg`, not recursive `grep` from a repo root. Quote glob
-  arguments intended for the called tool. The same scoping applies to `find`:
-  give it the narrowest starting path the task needs (never `/` or an
-  unqualified `~`), and prefer a known-location `Read` over `find` entirely
-  when the path is already known (see the known-location rule under Working
-  style).
+  arguments intended for the called tool.
 - Exclude `.pixi/` from filesystem and text searches by default. Search it only
   when intentionally inspecting the Pixi environment, installed packages, or
   environment setup.
 - Never run a blanket recursive search — text (`rg`/`grep`) or filename
   (`find`) — over the home directory or filesystem root, such as anything
   rooted at `/`, `~`, or `$HOME`, without first requesting explicit approval.
-  Narrow searches to known project or task-relevant subdirectories.
+  Give `find` the narrowest starting path the task needs, and narrow searches
+  to known project or task-relevant subdirectories.
 - Test bootstrap and PATH behavior with `env -i`; a new interactive shell inherits
   exported state and is not a clean environment.
 
@@ -160,5 +145,3 @@ same name, except for these command adapters:
 ## Python (ML/research)
 
 - In Pixi projects, use `pixi run --frozen` instead of `pixi run`.
-- Prefer `pathlib`, f-strings, and `logging` in library code while following the
-  repo's environment, lint, and Slurm conventions.
