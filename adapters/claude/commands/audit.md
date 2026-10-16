@@ -118,7 +118,7 @@ bounded non-interactive run, use `~/.claude/scripts/audit-change`, which applies
 Claude CLI's `--max-budget-usd` limit before invoking this command.
 
 Only when a surviving tests-lane finding requires a mutation, read
-`~/.claude/commands/references/audit-mutation-probes.md` and follow its managed
+`~/.claude/skills/audit-change/references/audit-mutation-probes.md` and follow its managed
 `.claude/worktrees`, `EnterWorktree`, `ExitWorktree`, and cleanup procedure.
 
 @~/agent-config/shared/skills/audit-change/shared.md
