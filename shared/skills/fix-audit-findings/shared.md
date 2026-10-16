@@ -16,6 +16,14 @@ For each finding, before choosing a fix:
    external library or service from its source or a probe; when that is not
    possible, say it rests on the reviewer's account.
 
+## Close the evidence gaps
+
+For each evidence gap in the report, check whether the repository answers it,
+such as the callers, consumers, or readers of a changed symbol. Resolve each gap
+the repository answers, handle what the trace shows as a finding, and leave only
+the gaps that need an external system or an execution you may not run, naming
+what each one needs.
+
 ## Choose the response
 
 - **Fix:** a case that occurs, or whose miss gives a wrong result or loses data.
