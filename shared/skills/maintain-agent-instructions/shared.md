@@ -77,6 +77,14 @@ wording unless it is a documented interface or contract. Exercise:
 2. A semantically equivalent included case without the incident's terms.
 3. A nearby excluded case the rule must not block.
 
+Hold the rule's own text to the same standard. Keep incident nouns, names,
+paths, and domain terms out of the wording, including examples and
+parentheticals, not only out of the applicability condition. Describe the
+behavior in terms any task in scope would use. Before testing, scan the draft
+for the incident's terms and rewrite each hit. A rule whose text restates the
+incident's task can pass its replay because it describes the task, which
+measures the wording and not the rule.
+
 When correcting observed skill routing or decision behavior, run these cases in
 a fresh session or agent that has loaded the edited instructions. For an edit to
 an instruction or configuration artifact already loaded by the current session,
@@ -107,10 +115,10 @@ earlier results from the session that wrote the rule. Remove it, supply what the
 author had in the prompt, and discard an arm whose output states a fact it was
 not given.
 
-Before testing an edit, run the unedited instructions through the same setup and
-confirm the incident recurs; a setup the unedited rules already pass cannot show
-an improvement. Then run edited and unedited arms with matched inputs and equal
-sample counts, and report the counts, not a verdict. When the unedited rate is
+Run the unedited arm first and score it before launching any edited arm; do not
+start them together. Confirm the incident recurs: a setup the unedited rules
+already pass cannot show an improvement. Then run the edited arms with matched
+inputs and equal sample counts, and report the counts, not a verdict. When the unedited rate is
 well above zero, a few samples per arm cannot separate a modest effect from
 chance. Say so, and ask before running a test large enough to.
 
