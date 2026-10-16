@@ -92,8 +92,9 @@ Make each commit describe its final diff as if read fresh on the target branch.
   commit with `git commit -F`. Do not use `git commit -m` as a shortcut, even
   when the subject seems self-explanatory.
 - Treat the body as a reviewer index, not a design document. Unless the user or
-  repository requires another format, use at most 250 words and three compact
-  sections. Cite evidence from at most three owning tests.
+  repository requires another format, keep it to the goal, the shipped behavior,
+  and the evidence a reviewer needs, citing the few owning tests that establish
+  it.
 ## Verify
 
 - Before drafting an amended commit message, inspect the complete candidate
