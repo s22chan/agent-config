@@ -82,6 +82,13 @@ For persistent state, exercise the complete lifecycle:
   external protocol before choosing an oracle.
 - For human text, assert durable semantics and required data—action, identity,
   link, count, or safety qualifier—not whole sentences, punctuation, or spacing.
+- Scope each assertion to what the change decides. When the expected value has
+  parts the change does not decide, because other code builds them or they
+  predate it, leave those parts out by checking the changed part alone: parse
+  it out, slice it, or compare against the unchanged value. A test that fails
+  when an untouched part is renamed pins the wrong thing. Pin the whole value
+  only when the whole is the contract: a key matched by exact string, a grammar
+  another component parses, or a helper's own output format.
 - When another shipped component parses generated text, pass real producer
   output through the real parser and assert extracted fields. Separate producer
   and handwritten parser fixtures can drift while both pass.
