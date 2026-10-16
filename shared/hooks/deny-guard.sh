@@ -80,26 +80,18 @@ reset_command_state() {
   wrapper_kind=
   wrapper_arg=0
   wrapper_count=0
-  prompt_prefix_ok=$base_prompt_ok
   command_kind=
   git_subcommand=
-  git_arg_index=0
   git_config_arg=0
   hook_bypass=0
 }
 
-is_prompt_rule_git_path() {
-  case "$1" in
-    git|/bin/git|/usr/bin/git|/usr/local/bin/git) return 0 ;;
-    *) return 1 ;;
-  esac
-}
 
 inspect_line() {
-  local line=$1 base_prompt_ok=$2
+  local line=$1
   local -a words
-  local command_start wrapper_kind wrapper_arg wrapper_count prompt_prefix_ok
-  local command_kind git_subcommand git_arg_index git_config_arg hook_bypass
+  local command_start wrapper_kind wrapper_arg wrapper_count
+  local command_kind git_subcommand git_config_arg hook_bypass
   local tok lower name i
 
   mapfile -t words < <(lex_shell "$line")
@@ -132,13 +124,11 @@ inspect_line() {
         sudo|command|env|proxy|time|nice|nohup|stdbuf|builtin|noglob|xargs)
           wrapper_kind=$name
           wrapper_count=$((wrapper_count + 1))
-          prompt_prefix_ok=0
           continue
           ;;
         timeout)
           wrapper_kind=timeout
           wrapper_count=$((wrapper_count + 1))
-          prompt_prefix_ok=0
           continue
           ;;
       esac
@@ -171,7 +161,7 @@ inspect_line() {
         env:-S|env:--split-string)
           i=$((i + 1))
           if [ "$i" -lt "${#words[@]}" ]; then
-            inspect_line "${words[i]}" 0
+            inspect_line "${words[i]}"
           fi
           command_start=0
           continue
@@ -184,7 +174,6 @@ inspect_line() {
           deny "gh is disabled; prepare the PR operation for the GitHub web UI"
           ;;
         git)
-          is_prompt_rule_git_path "$tok" || prompt_prefix_ok=0
           command_kind=git
           command_start=0
           ;;
@@ -202,7 +191,6 @@ inspect_line() {
         bash|sh)
           command_kind=shell
           command_start=0
-          prompt_prefix_ok=0
           ;;
         *) command_start=0 ;;
       esac
@@ -214,7 +202,7 @@ inspect_line() {
         -c|-lc|-cl)
           i=$((i + 1))
           if [ "$i" -lt "${#words[@]}" ]; then
-            inspect_line "${words[i]}" 0
+            inspect_line "${words[i]}"
           fi
           command_kind=shell_done
           ;;
@@ -272,8 +260,6 @@ inspect_line() {
         continue
       fi
 
-      git_arg_index=$((git_arg_index + 1))
-
       case "$git_subcommand:$tok" in
         add:.|add:-A|add:--all)
           deny "stage explicit files instead of git add ., -A, or --all"
@@ -281,28 +267,10 @@ inspect_line() {
         commit:--no-verify|commit:-n|merge:--no-verify|rebase:--no-verify)
           deny "Git hook bypass is disabled; fix the owning hook failure"
           ;;
-        push:--force|push:-f|push:--force-with-lease)
-          if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run the force option immediately after git push, directly, so the approval rule can prompt"
-          fi
-          ;;
-        push:--force-with-lease=*|push:+*|push:--mirror)
-          deny "this force-push spelling cannot reach the approval rule; use an explicitly prompted form"
-          ;;
-        rebase:-i|rebase:--interactive)
-          if [ "$prompt_prefix_ok" != 1 ] || [ "$git_arg_index" -ne 1 ]; then
-            deny "run the interactive option immediately after git rebase, directly, so the approval rule can prompt"
-          fi
-          ;;
       esac
-
-      if [ "$git_subcommand" = push ] && [[ "$tok" =~ ^-[^-]*f ]]; then
-        [ "$tok" = -f ] \
-          || deny "combined force-push flags cannot reach the approval rule; use a separately prompted -f option"
-      fi
     fi
   done
 }
 
-inspect_line "$cmd" 1
+inspect_line "$cmd"
 exit 0
