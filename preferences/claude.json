@@ -5,6 +5,7 @@
         "DISABLE_AUTOUPDATER": "1"
     },
     "permissions": {
+        "defaultMode": "auto",
         "allow": [
             "Read",
             "Bash(tail:*)",
