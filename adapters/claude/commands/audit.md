@@ -44,8 +44,17 @@ Create one fresh contained `audit-reviewer-high` agent per selected lane or
 decision-owner shard. Never resume a reviewer for a different lane and never
 raise reviewer effort above high. Launch all reviewers together as foreground
 agents in a single message and wait for every one to return, so their results
-return to this isolated coordinator instead of the invoking session. Waiting
-once keeps the coordinator's prompt cache from expiring between lanes. The command frontmatter starts a fresh Sonnet/high coordinator, while
+return to this isolated coordinator instead of the invoking session. Report-only
+review and this batch wait are exempt from the personal five-minute subagent
+execution limit. Return one merged result rather than waking the invoking
+session for each lane. A batch wait can still outlast the coordinator's cache
+TTL; it does not guarantee cache retention or a single cache write across agents.
+Tests, builds, or other shell jobs that could exceed five minutes must be
+returned to the invoking chat session with the command, working directory,
+expected duration, and required context, and left unverified until it supplies
+the results.
+
+The command frontmatter starts a fresh Sonnet/high coordinator, while
 each reviewer uses Opus/high. A model cannot observe its own effort, so do not
 ask a reviewer to state its model or effort and do not act on such a statement.
 After each reviewer stops, read its transcript

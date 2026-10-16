@@ -132,6 +132,18 @@ same name, except for these command adapters:
 
 ## Claude tool use
 
+- Subagents must not launch operations that could take more than five minutes,
+  including background jobs or chains of shorter commands for the same task.
+  Return the command, working directory, expected duration, and required context
+  to the main chat session so it can execute and monitor the work while keeping
+  its prompt cache warm. The main session must retain such execution rather than
+  delegate it; subagents may run operations confidently bounded to five minutes.
+- Exception: report-only audit reviewers may work longer than five minutes,
+  and an isolated audit coordinator may launch them concurrently and wait for
+  the batch before returning one merged result to the main session. This
+  exception covers review and coordination only; long-running tests, builds,
+  and other shell jobs still belong in the main session. Parallel completion
+  does not guarantee that the parent or reviewers keep their caches warm.
 - For a known tool, skill, agent, or command path, read it directly rather than
   searching the filesystem. User skills live at `~/.claude/skills/<name>/`,
   project skills at `<repo>/.claude/skills/<name>/`, and agents at
