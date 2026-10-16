@@ -59,7 +59,7 @@ each reviewer uses Opus/high. A model cannot observe its own effort, so do not
 ask a reviewer to state its model or effort and do not act on such a statement.
 After each reviewer stops, read its transcript
 `~/.claude/projects/*/*/subagents/agent-<agentId>.jsonl` and stop if any
-assistant entry has a `message.model` other than `claude-opus-5-5` or an
+assistant entry has a `message.model` that does not begin `claude-opus-` or an
 `effort` or `perTurnEffort` other than `high`; a missing field is unverified,
 not a mismatch. Do not create a separate mapping agent.
 
