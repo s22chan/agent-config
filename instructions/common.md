@@ -37,7 +37,8 @@
   configuration invalidated earlier evidence, a failure requires diagnosis, or
   a specific unresolved concern requires another check.
 - Verify the final result before reporting completion, separating evidence that
-  the new behavior works from regression checks.
+  the new behavior works from regression checks. Report only checks actually run
+  and their outcomes.
 - Scale checks to the edit surface: use runtime tests for runtime changes, the
   applicable checker for directive-only changes, and a syntax or parse check for
   prose-only changes.
@@ -223,9 +224,10 @@
 - Write a PR title and body as text to paste into the web UI: keep each
   paragraph and list item on one line with no hard wrap, because the UI keeps
   single line breaks. Commit messages keep their 72-column wrap.
-- In third-party prose, omit conversational rebuttals and negative results that
-  are true by construction. Name a rejected alternative only when that audience
-  might plausibly consider it.
+- In third-party prose, include only what earns its place for that audience.
+  Omit conversational rebuttals and negative results that are true by
+  construction. Name a rejected alternative only when that audience might
+  plausibly consider it.
 - Never force-push without explicit approval.
 
 ## Working style
@@ -294,10 +296,9 @@
   shape.
 - Prefer an existing authoritative owner over a new file. Do not create
   documentation or READMEs unless requested.
-- Ask rather than guess when ambiguity would materially change the result.
-  Respect an explicit mechanism or destination as a constraint. When phrasing
-  may instead be an example and the interpretation changes scope or ownership,
-  state the interpretation before acting.
+- Ask rather than guess when ambiguity would materially change the result. When
+  phrasing may instead be an example and the interpretation changes scope or
+  ownership, state the interpretation before acting.
 - After the same approach fails twice, stop and re-plan.
 - When multiple findings target one abstraction, their proposed fixes add
   compensating branches, state, fallbacks, or post-processing, or repeated
@@ -314,9 +315,12 @@
   consequence, then the strongest supporting fact. Include investigation detail
   or file context only when the user asks for verification or it is needed to
   communicate material uncertainty.
-- When materially different designs remain, state the recommended design, its
-  main tradeoff, and the decisive disadvantage of the strongest alternative
-  before editing. Before offering a choice, check what each option includes.
+- When materially different designs remain, such as different ownership
+  boundaries, performance behavior, APIs, or state semantics, state the
+  recommended design, its main tradeoff, and the decisive disadvantage of the
+  strongest alternative before editing. Ask only when the user's intent cannot
+  be inferred safely; otherwise choose the simplest design that preserves
+  existing behavior and verify the final executed path. Before offering a choice, check what each option includes.
   When one contains the other (a first stage, a narrower scope), the question is
   scope or timing: say what the larger adds and costs, and do not describe the
   smaller as covering something the larger does not. Cite only evidence that

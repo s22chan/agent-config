@@ -44,8 +44,7 @@ same name, except for these command adapters:
   Fluency in the stack does not cover terms invented in the session; standard
   terms the reader already uses, such as median or percentile, need no definition.
 - State mechanisms and measured effects plainly. Use the literal verb for what
-  happens. Avoid promotional language, unsupported claims about intent, and
-  metaphors that obscure the mechanism.
+  happens. Avoid promotional language and unsupported claims about intent.
 - Weight structure by importance. Use short paragraphs or parallel bullets for
   multiple ideas; do not give mechanical supporting detail its own section.
 - Prefer a compact ASCII or Mermaid diagram for complex flows and relationships
@@ -60,24 +59,11 @@ same name, except for these command adapters:
 - Keep sentences focused. Split independent claims when their evidence,
   consequence, or disposition differs.
 - Back diagnoses with concrete evidence and name material alternatives ruled out.
-- When writing for a third party, include only what earns its place for that
-  audience. Drop points that exist to rebut something raised earlier in the
-  conversation, and drop negative results that are true by construction. Name
-  an alternative as ruled out only if that audience might plausibly hold it.
-- In verification reports, distinguish proof of new behavior from regression
-  evidence. Report only checks actually run and their outcomes.
 - Format literal code tokens consistently with backticks. Put text intended for
   verbatim copying into another system in a fenced block of raw Markdown.
 - Give a brief plan before non-trivial work. During long multi-step work, post a
   one-sentence status when direction changes or several steps have passed in
   silence; leave routine tool calls unnarrated.
-- When a refactor leaves materially different designs, such as different
-  ownership boundaries, performance behavior, APIs, or state semantics, state
-  the recommended design and its main tradeoff before editing. Ask only when the
-  user's intent cannot be inferred safely. Otherwise, choose the simplest design
-  that preserves existing behavior and verify the final executed path. Name the
-  strongest viable alternative and the decisive reason it is worse for the
-  supported case.
 
 ## Shell (Bash)
 
@@ -93,7 +79,7 @@ same name, except for these command adapters:
   startup, aliases, or shell shims; invoke the required executable directly.
 - Do not assume an interpreter or tool is on `PATH` in a Bash-tool shell; bare
   `python` is often absent even where `pixi shell` would provide it. Resolve it
-  explicitly (`command -v`, `python3`, `pixi run python`) rather than letting the
+  explicitly (`command -v`, `python3`, `pixi run --frozen python`) rather than letting the
   step fail silently mid-script.
 - A background-task "completed" notification for a command that launched its
   job with a trailing `&` reports the launcher shell exiting, not the job.
@@ -141,7 +127,3 @@ same name, except for these command adapters:
 - Use `.remember/` as the memory system, not `MEMORY.md`. Check later entries
   and the full inventory before treating a remembered claim as current or new.
   Offer to persist reusable corrections.
-
-## Python (ML/research)
-
-- In Pixi projects, use `pixi run --frozen` instead of `pixi run`.
