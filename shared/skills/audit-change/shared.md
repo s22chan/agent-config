@@ -362,13 +362,6 @@ instead of filling it from code shape or compatibility tests.
    audit remains an evidence gap for a separate authorized workflow; do not ask
    for approval and run it inside the audit. Reconcile every candidate before
    reporting the audit complete.
-8. Record `reported / survived / unique / verification contributions` for each
-   lane. A finding is unique only when no other lane reported the same root
-   cause. A verification contribution means the lane supplied execution,
-   history, or contract evidence that changed a finding's disposition,
-   likelihood, impact, or severity even when the root cause was duplicated. Use
-   these counts to expose repeated low-yield lanes; do not treat duplication as
-   an additional finding.
 
 The root is not exempt from this pass and does not perform it on its own work.
 A finding you derived yourself is not a lane result, so nothing above triggers
@@ -388,8 +381,7 @@ By default, lead with the finding worth acting on first, then return the merged
 one-line list ordered by operational consequence and action priority. Keep
 impact and likelihood separate, and do not let lane, proof freshness, or arrival
 order determine priority. Tag each finding with its source lanes. Close with
-evidence gaps, each lane's `reported / survived / unique / verification
-contributions` counts, lanes that returned nothing, and claims rejected during
+evidence gaps, lanes that returned nothing, and claims rejected during
 verification.
 
 The rejected-claims section covers actual audit candidates whose rejection is
