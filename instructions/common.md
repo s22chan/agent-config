@@ -102,6 +102,12 @@
 - Keep docstrings to a direct summary plus a short why only when the why passes
   the same non-obviousness test. Leave existing correct prose untouched unless
   the code change makes it inaccurate.
+- Write comments and docstrings in the short, ordinary sentences the
+  Communication rules ask for. Say what the code does in the order it happens,
+  with a named actor and the literal verb, and state a limit or exclusion as its
+  own sentence naming the case. Do not use a verdict or label word, such as
+  "handled", "supported", or "robust", where the action can be stated; use a
+  technical term only when readers of that API already use it.
 - Match an existing Python file's majority docstring convention when editing
   it. For a newly created file, or one with no established convention, use
   modern Google-style docstrings (`Args:`, `Returns:`, and `Raises:` only when
