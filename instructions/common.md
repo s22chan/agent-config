@@ -19,7 +19,9 @@
   `pixi run --frozen pytest ...`. In a uv project (a `uv.lock` and no Pixi
   manifest), use `uv run --frozen ...` and sync dev tools with
   `uv sync --frozen --all-extras`.
-- Apply every workflow whose description matches the task. When several apply,
+- Before writing or changing code or tests, load each workflow whose description
+  matches the task by invoking it; its rules are not in context until it is
+  loaded. Apply every matching workflow. When several apply,
   combine them by ownership: use
   `design-python-code` for production structure, `verify-behavioral-tests`
   for test evidence, `verify-ml-training-changes` for training-specific
