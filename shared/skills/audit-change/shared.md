@@ -235,7 +235,9 @@ potential production consequence separately in lane judgments and the final
 report.
 
 Each lane returns one finding per line. A location may be `path:LINE`, a commit
-SHA, or a commit range, whichever owns the evidence:
+SHA, or a commit range, whichever owns the evidence. Take each `LINE` from a
+numbered read of the file at the audited revision, such as `Read` output or
+`git grep -n`, not from counting lines by hand or from diff output:
 
 ```text
 location — [high|med|low] — one-sentence defect — concrete trigger, then observable consequence
