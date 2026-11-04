@@ -10,7 +10,19 @@ By default run `review`, `design`, `grill`, `tests`, and `docs`. Run `commits`
 only when the user names it or requests `all lanes`; commit-series review is
 useful only when history narrative is in scope, and its remedies can require
 separate authorization to rewrite history. When the user names lanes, run only
-those lanes. Treat a request for the full setup, tracked tree, or current state
+those lanes. When the user names no lanes and every hunk of the change is one
+of the following, run only `review` and, for prose, `docs`:
+
+- an edit to only prose or comments;
+- a rename or verbatim move of a symbol after a search of the whole repository,
+  including string literals, dynamic lookups, serialized names, configuration,
+  and public interfaces, found no stale reference;
+- a whitespace-only edit in a language where whitespace carries no meaning;
+- new code reachable only through a flag that is off by default and enabled in
+  no configuration in the repository.
+
+Use the default set for any other change and whenever the search or check was
+not made. Treat a request for the full setup, tracked tree, or current state
 as scope, not as `all lanes`. Treat other supplied text as the target, base, or
 scope. A request for a report or long form changes only the rendering; read
 [report format](references/report-format.md) only then.

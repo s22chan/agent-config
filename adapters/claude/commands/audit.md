@@ -22,7 +22,7 @@ Parse `audit-arguments` before inspecting the repository. An exact lane token
 (`review`, `design`, `grill`, `tests`, `docs`, or `commits`) selects that lane;
 when any lane token is present, the selected set is exactly the named lanes.
 Only a bare invocation uses the default `review`, `design`, `grill`, `tests`,
-and `docs` set. Select all six lanes with `--all-lanes`. Consume lane tokens,
+and `docs` set, unless the shared workflow narrows it for a low-risk change. Select all six lanes with `--all-lanes`. Consume lane tokens,
 `--all-lanes`, `--max-reviewers N`, and `--report` here; treat the remaining
 text as scope, target, or base. Reject a missing, non-integer, or non-positive
 reviewer limit, and reject a limit smaller than the selected lane count. Record
