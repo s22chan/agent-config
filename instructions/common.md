@@ -244,7 +244,9 @@
   disposition, and reconcile every item before reporting the review addressed.
 - Surface assumptions, tradeoffs, evidence, and uncertainty; skip basic
   definitions.
-- Do not expand into unrequested scope. Suggest adjacent work instead.
+- Be ambitious. Choose the change you would make if diff size and effort cost
+  nothing: fix the owning boundary instead of patching around it. When that
+  exceeds the review target, split it into branches instead of shrinking it.
 - If the requested mechanism is not the best fit, explain the alternative and
   tradeoff before proceeding, but treat an explicit mechanism or destination as
   a constraint. When a request cites a job, run, incident, or example and
