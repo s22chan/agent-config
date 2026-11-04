@@ -412,7 +412,8 @@ For comparative audits, also label every finding `introduced`, `changed`, or
 `retained` relative to the resolved base. Keep verified unnecessary churn in
 the merged findings even when it is not a current-workflow defect, and state
 the concrete base-relative cost. Keep inherited or outside-diff observations
-out of the finding list unless the change worsens them; list them briefly as
+out of the finding list unless the change worsens, moves, or exposes them (for
+example by making a latent defect reachable); list them briefly as
 rejected scope claims when another review supplied them.
 
 For a requested long-form report, use

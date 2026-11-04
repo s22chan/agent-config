@@ -10,9 +10,11 @@ Do not rerun lanes or expand the finding set merely to fill the format.
 2. **Verdict** — the state of the change and the cheapest check or decision that
    would materially change it.
 3. **Scan table** — verified findings only, as
-   `# | finding | impact | likelihood | fix`, ordered by operational
+   `# | finding | impact | likelihood | fix | origin`, ordered by operational
    consequence and action priority rather than lane, proof freshness, or arrival
-   order.
+   order. In a comparative audit, `origin` is the finding's `introduced`,
+   `changed`, or `retained` label, so a reader can tell the change's defects
+   from inherited ones it worsens; omit the column otherwise.
 4. **Full findings** — the highest-value findings, numbered to match the table.
 5. **Minor** — one line each: `location — defect — cost`.
 6. **Blocked** — `question | what it decides | where to look`.
