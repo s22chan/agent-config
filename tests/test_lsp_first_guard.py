@@ -76,6 +76,7 @@ class LspFirstGuardTest(unittest.TestCase):
             self.bash("git grep -n create_submitit_executor -- '*.py'"),
             self.bash("grep -rn 'create_submitit_executor' ."),
             self.bash("cd x && rg -e create_submitit_executor | head"),
+            self.bash("echo x | rg create_submitit_executor src"),
             self.run_hook("Glob", {"pattern": "**/*create_submitit_executor*"}),
         ):
             self.assertEqual(decision[0], "deny")
@@ -117,6 +118,8 @@ class LspFirstGuardTest(unittest.TestCase):
             self.bash("rg create_submitit_executor --glob '*.md' ."),
             self.bash("grep -rn create_submitit_executor --include='*.sh' ."),
             self.run_hook("Glob", {"pattern": "**/*.md"}),
+            self.bash("tail -n 500 job.log | grep create_submitit_executor"),
+            self.bash("cat job.log | rg -n create_submitit_executor"),
         ):
             self.assertEqual(decision[0], "allow")
 

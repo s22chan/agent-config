@@ -118,15 +118,15 @@ def bash_searches(command):
         tokens = shlex.split(command, posix=True)
     except ValueError:
         return
-    segments, current = [], []
+    segments, current, piped = [], [], False
     for token in tokens:
         if token in {"|", ";", "&&", "||", "&"}:
-            segments.append(current)
-            current = []
+            segments.append((current, piped))
+            current, piped = [], token == "|"
         else:
             current.append(token)
-    segments.append(current)
-    for words in segments:
+    segments.append((current, piped))
+    for words, piped in segments:
         if words[:1] == ["git"] and "grep" in words[1:3]:
             words = words[words.index("grep"):]
         if not words or os.path.basename(words[0]) not in SEARCH_COMMANDS:
@@ -149,7 +149,8 @@ def bash_searches(command):
                 i += 1
         if pattern is None and positional:
             pattern, positional = positional[0], positional[1:]
-        if pattern:
+        if pattern and not (piped and not positional):
+            # A search reading a pipe has no file target, so it cannot be a code search.
             yield pattern, glob, type_, positional
 
 
