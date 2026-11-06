@@ -73,9 +73,11 @@ Make each commit describe its final diff as if read fresh on the target branch.
 - Scope every claim to verified behavior. Cite the owning behavioral test,
   benchmark, or other direct check that establishes it; otherwise identify the
   evidence as not run or the claim as unverified.
-- At the result step for a performance, capacity, or resource change, give the
-  strongest verified delta available, such as latency, throughput, request
-  count, memory, or reserved capacity. State the baseline and treatment under
+- At the result step for a performance, capacity, or resource change, lead with
+  the primary verified delta and cover every measurement dimension explicitly
+  requested for the change. Include measured regressions and unchanged results;
+  identify unavailable evidence rather than substituting a stronger result from
+  another dimension. State the baseline and treatment under
   matched conditions. Keep the subject focused on the concrete problem or
   user/operator outcome. Do not substitute the mechanism or an asymptotic
   claim for impact. When matched timing is unavailable, use an exact directly
@@ -135,8 +137,9 @@ Make each commit describe its final diff as if read fresh on the target branch.
   disconnected from the solution that produced it, or when the claimed result
   comes from a candidate containing changes outside that commit. Fail when a
   quantitative result appears before the solution and causal link that explain
-  it. Require the primary delta and its measurement scope before the check
-  list. If only a direct non-timing quantity is proven, require that quantity
+  it. Require the primary delta, each requested measurement dimension and their
+  measurement scopes before the check list. If only a direct non-timing
+  quantity is proven, require that quantity
   instead of an inferred speedup.
 - Compare the opening goal with the originating request. Fail verification when
   it foregrounds a prerequisite or secondary effect while omitting the primary

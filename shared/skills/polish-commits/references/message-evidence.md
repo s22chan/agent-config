@@ -29,6 +29,14 @@ Use only the sections relevant to the committed change.
 
 ## Ownership and Intent
 
+- When a change redistributes responsibilities, describe the final division
+  across the affected execution path: which collaborator owns each relevant
+  policy, state and external effect, and which operations the coordinator
+  retains. Include a responsibility that stays put when it defines one side of
+  a changed boundary. Explain how that division serves the requested outcome.
+  A generic claim of separation or a list of moved symbols does not establish
+  the boundary. Keep this account to the affected collaborators; do not require
+  an architecture inventory for a local change that leaves ownership unchanged.
 - For ownership or isolation fixes, identify both sides of the boundary: the
   caller that does not own the resource and a current supported consumer that
   does. Trace the concrete interference; distinguish importing a dependency
