@@ -64,12 +64,11 @@ benchmark or architecture inventory. Score content, not exact wording.
 
 ## Results
 
-The original arm passed both included-case criteria in 2/2 samples for each
-case and the excluded-case criterion in 2/2. The original omission did not
-recur. These inputs therefore cannot demonstrate an improvement from the edit.
-The edited arm also passed both included-case criteria in 2/2 samples for each
-case and the excluded-case criterion in 2/2. These small samples show no
-regression in this setup, not a measured reduction in omission frequency.
+The initial coarse scorer recorded 2/2 for both included cases and 2/2 for
+the excluded case under each rule version. It did not detect the original
+omission. These historical scores do not establish complete ownership coverage,
+absence of regression or an improvement from the edit. Later independent
+scoring found omitted or ambiguous boundaries in the original drafts.
 
 The initial scoring accepted broad descriptions of responsibilities; it did
 not require an explicit account of every affected owner. That scoring was too
@@ -110,10 +109,10 @@ boundary. The revised rule includes those responsibilities while retaining the
 exclusion for local changes that leave ownership unchanged. Its next two samples
 reuse the same original baseline, inputs and predeclared scoring criteria.
 
-Both final revised samples explicitly described all five boundaries (2/2),
-including the stager's buffers/copies and the saver's coordination. Requested
-measurement coverage remained 2/2. Original/first-edit/revised full-boundary
-counts were 0/2, 1/2 and 2/2, respectively. Each arm used fresh authoring
+The manual scorer recorded all five boundaries in both final revised samples
+(2/2), and requested measurement coverage in 2/2. Its original/first-edit/revised
+full-boundary counts were 0/2, 1/2 and 2/2. These are the original manual scores;
+the calibrated blind review below qualifies the final count. Each arm used fresh authoring
 sessions, verified rule hashes, identical raw inputs and the same rubric; the
 original baseline was not rerun or modified between edited versions.
 
@@ -123,3 +122,52 @@ control passed under both original and first-edit rules; the final revision
 retains that exclusion. Final bootstrap synchronization/validation passed and
 installed copies matched the tested revised snapshots. No checkpoint code or
 commit history was changed during these rule tests.
+
+## Follow-up triage and calibrated checks
+
+The user asked "triage and see test what can be fixed". The task list, exact
+inputs, fixed rule snapshots, author responses, grading, hashes and correction
+provenance are in `~/tmp/commit-test-triage-qt5vnkv2/`.
+
+- Recurrence gate: the workflow already required it. The original controls were
+  completed and scored before final-rule controls. No duplicate rule was added.
+- Scoring: a grader was calibrated against the actual defective commit, a
+  complete example, a semantic paraphrase, isolated missing-writer and
+  missing-RSS examples, and a historically ambiguous draft. Its first pass
+  exposed an ambiguous measurement label in the supposed complete fixtures.
+  The fixtures were corrected to name public `start()` latency without changing
+  the rubric. The corrected six-case corpus matched all declared overall
+  outcomes: both complete examples passed, omissions were rejected, and the
+  ambiguous draft remained nonpassing. This validates the local oracle, not
+  instruction effectiveness or a population-level error rate.
+- Input selection: the blind comparison exposed a hash-only block accidentally
+  selected instead of one commit message. The selector was corrected to choose
+  the checkpoint commit block, with source hash and block provenance. The
+  invalid result was discarded. Only the changed input was regraded; the other
+  five messages were byte-identical.
+- Final-version controls: two fresh original and two fresh final-rule authors
+  each wrote the equivalent included case and nearby excluded case. Both arms
+  reported the archive timings and scratch increase with all five owners in
+  2/2 samples. Both kept the help correction concise in 2/2. Loaded-rule hashes
+  matched the actual original and final sources. This closes the missing
+  final-version control check without claiming an improvement in passing cases.
+- Causal attribution: inputs and grading changed together between the initial
+  and raw setups. The record does not establish that summarization caused the
+  initial test's problem. Working notes are permitted by the existing workflow.
+- Remaining evidence: the memory omission was not reproduced in authoring.
+  Rejecting the isolated missing-RSS example proves grader sensitivity, not that
+  the new instruction reduces such omissions.
+
+The calibrated blind review reused the saved checkpoint drafts without
+rewriting them. Neither raw original draft established saver coordination.
+One final-rule draft clearly described all five boundaries; the other left
+saver coordination ambiguous. Thus final ownership coverage is **one confirmed
+complete and one indeterminate**, qualifying the earlier manual 2/2 claim.
+Both final drafts left the maximum-across-ranks reduction of CUDA peaks
+implicit, so neither is confirmed complete under the full measurement-scope
+rubric. These remaining ambiguities are recorded rather than scored as passes.
+
+The rules themselves were unchanged during this follow-up. Only this evidence
+record changed. The saved input hashes, final rule snapshots and installed
+copies matched; `git diff --check` passed. The independent results remain small
+exploratory samples, and do not establish reliable omission rates.
