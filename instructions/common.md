@@ -229,6 +229,10 @@
 - Stage explicit files only; never use `git add -A` or `git add .`.
 - PR descriptions lead with the takeaway and reviewer-visible changes; point to
   commit history for detailed evidence instead of repeating it.
+- In a PR description or commit body, give each list item one claim. When a
+  change has several parts, write the change as a one-line item and put each
+  part under it as its own short sub-item with its effect. Do not chain parts
+  with semicolons or run several sentences into one item.
 - Write a PR title and body as text to paste into the web UI: keep each
   paragraph and list item on one line with no hard wrap, because the UI keeps
   single line breaks. Commit messages keep their 72-column wrap.
