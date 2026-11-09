@@ -81,8 +81,12 @@ Make each commit describe its final diff as if read fresh on the target branch.
   matched conditions. Keep the subject focused on the concrete problem or
   user/operator outcome. Do not substitute the mechanism or an asymptotic
   claim for impact. When matched timing is unavailable, use an exact directly
-  proven quantity and say that runtime impact is unmeasured; never attribute an
-  aggregate benchmark to an independent commit that ships only part of it.
+  proven quantity and say that runtime impact is unmeasured. A timing,
+  throughput, bandwidth, or duration measured in only one configuration is not
+  such a quantity: omit it, because it shows the path ran and not what the
+  change did. Counts the change fixes by construction, such as requests or
+  reserved capacity, still qualify. Never attribute an aggregate benchmark to an
+  independent commit that ships only part of it.
 - For a user-visible format, grammar, rendered label, or interaction change,
   include a minimal concrete before/after example in the commit body when it
   makes the outcome clearer. When the commit changes multiple independently
