@@ -44,9 +44,18 @@ layout, read [report layout and formatting](references/layout-and-formatting.md)
 
 Prefer loading and updating an existing report with `Report.from_url`; do not create a duplicate report for a revision.
 
+Label every plotted series and table row by its role in the comparison, using
+the arm's name from the research question, and keep one color per arm in every
+panel. A raw run name, ID, or name fragment shared by several arms does not
+label an arm. When the raw runs do not identify the arm, add a legend template
+or an analysis-only derived run named by arm and replicate; never rename or
+edit the raw runs, which other reports may use. Before handoff, list the legend
+text each panel will show and confirm that no two arms differ only by an ID or
+position number.
+
 Select the exact runs in every panel grid. After saving, deserialize the report and verify that each runset has the intended selected IDs and that every panel uses the verified metric path. Do not rely on a plausible-looking metric name.
 
-When a logical training arm is fragmented by preemption, do not imply that the raw W&B sessions form one continuous curve. Create a clearly named, tagged, analysis-only derived run only when a continuous chart is necessary. Merge raw history by trainer step, retain the source run IDs in config and report prose, and copy values without interpolation. Link both the derived series and the raw training runs. Never use a derived run's configuration as evidence of the training configuration.
+When a logical training arm is fragmented by preemption, do not imply that the raw W&B sessions form one continuous curve. Create a clearly named, tagged, analysis-only derived run only when a continuous chart is necessary or the raw runs cannot be labeled by arm. Merge raw history by trainer step, retain the source run IDs in config and report prose, and copy values without interpolation. Link both the derived series and the raw training runs. Never use a derived run's configuration as evidence of the training configuration.
 
 Before handoff, verify that each requested source run contains the plotted metric at the claimed endpoint and that the derived run, if any, contains the merged endpoints.
 
