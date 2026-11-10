@@ -204,7 +204,8 @@ tags.
   resolved revision and given no prior conversation. Never raise an audit
   reviewer above high effort. Put the exact lane rubric in its prompt rather
   than asking it to discover the file. Give it the compact scope index, exact
-  paths for any referenced workflow, and a lane-local evidence packet
+  paths for any referenced workflow and any reference file its rubric names,
+  and a lane-local evidence packet
   containing only the current and base code, supported producer, consumer or
   downstream configuration, and owning tests needed for that lane. Prefer
   evidence-file paths over repeating large bodies in prompts.

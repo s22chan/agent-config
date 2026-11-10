@@ -8,6 +8,14 @@ scope, read and apply the
 review-only mode after reading repository instructions and established
 conventions. Do not generalize its Python-specific rules to other languages.
 
+Before accepting a guard, mode, flag, skip path, or fallback in new code, read
+and apply
+[defensive states](../../../design-python-code/references/defensive-states.md):
+name the current producer that reaches the state and the outcome it prevents,
+charge the state for its tests and supporting machinery, and report a state no
+producer reaches as removable churn. Do not accept a state because the code
+handles it or a test covers it.
+
 Report runtime defects only with a concrete consequence for a current consumer.
 Report diff-introduced churn only when the base comparison shows an avoidable
 behavior difference, repeated work, reachable state, abstraction, or
