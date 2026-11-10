@@ -104,6 +104,11 @@ mechanism and consequence rather than separate principle violations.
 - Pass narrow semantic values or records rather than broad owners, contexts, or
   data clumps. Centralize a record only when its fields share an owner and
   lifetime.
+- Give a container of bare ints or strings that stand for identifiers or domain
+  quantities a named alias or `NewType` where it is defined, with a comment
+  saying what the values identify, and use the alias in signatures and returns.
+  Skip it for generic numeric data and for a type used once in one private
+  function.
 - Take an external-effect collaborator (hardware, network, clock, filesystem,
   subprocess) as a parameter whose default is the production implementation,
   even when only tests pass another one, when a test cannot run that effect for
