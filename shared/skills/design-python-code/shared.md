@@ -104,6 +104,12 @@ mechanism and consequence rather than separate principle violations.
 - Pass narrow semantic values or records rather than broad owners, contexts, or
   data clumps. Centralize a record only when its fields share an owner and
   lifetime.
+- Take an external-effect collaborator (hardware, network, clock, filesystem,
+  subprocess) as a parameter whose default is the production implementation,
+  even when only tests pass another one, when a test cannot run that effect for
+  real. Prefer this to patching module attributes. Keep every other
+  collaborator real. Do not extend it to flags or modes that change policy, or
+  to configuration state that only tests read.
 - Keep direct code, a local variable, or a caller-local function for a
   single-use mechanic without independent semantics. Extract a helper when it
   has multiple callers, owns an independent contract or state, implements a
