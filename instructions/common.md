@@ -178,12 +178,17 @@
   policy local when a generic dependency would leave the same policy or add more
   translation than it removes.
 - Before writing production code, trace the shipped entry point, current
-  consumers, sibling implementations, and import boundaries. Decide which
-  module owns each policy, state transition, and external effect, and which
-  dependency direction preserves that ownership. Put facts that must change
-  together at that owner and make callers depend on narrow immediate
-  collaborators. After editing, reread the complete path for duplicated policy,
-  hidden state, and new cross-layer coupling.
+  consumers, sibling implementations, and import boundaries. When the design
+  depends on the environment, effective configuration, or existing state, use
+  targeted read-only queries or probes to establish what other layers already
+  provide and what remains missing. Query facts that could change the design;
+  do not infer effective state from defaults. Keep unavailable facts explicit
+  rather than treating them as missing behavior. Decide which module owns each
+  policy, state transition, and external effect, and which dependency direction
+  preserves that ownership. Put facts that must change together at that owner
+  and make callers depend on narrow immediate collaborators. After editing,
+  reread the complete path for duplicated policy, hidden state, and new
+  cross-layer coupling.
 - Do not introduce `from __future__ import annotations` into new or touched
   Python files unless the project explicitly requires it.
 - Branches over open sets must reject unmatched cases instead of silently doing
