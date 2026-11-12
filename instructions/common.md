@@ -245,6 +245,12 @@
   change has several parts, write the change as a one-line item and put each
   part under it as its own short sub-item with its effect. Do not chain parts
   with semicolons or run several sentences into one item.
+- In a PR description, put measured before/after values for the same
+  quantities across several workloads or configurations in a Markdown table:
+  one row per workload, one column per arm, units in the header. State the
+  measurement conditions and what the numbers do not establish in a sentence
+  beside the table. Keep a single comparison in prose, and keep commit bodies
+  in prose because they are plain text.
 - Write a PR title and body as text to paste into the web UI: keep each
   paragraph and list item on one line with no hard wrap, because the UI keeps
   single line breaks. Commit messages keep their 72-column wrap.
