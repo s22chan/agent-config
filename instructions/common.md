@@ -101,9 +101,13 @@
   outputs, document each branch's contract instead of promoting one variant's
   behavior to an umbrella claim. For a fallback, name the primary authority,
   trigger, limited effect, and any operation it cannot authorize.
-- Keep docstrings to a direct summary plus a short why only when the why passes
-  the same non-obviousness test. Leave existing correct prose untouched unless
-  the code change makes it inaccurate.
+- Write a docstring as an explanation a caller can follow, not a catalog of
+  implementation facts. Start with the operation's purpose, then include only
+  non-obvious context needed to use it. After drafting, check each explanatory
+  paragraph separately: every sentence must develop the same point through
+  purpose, sequence, or cause. Move independent details to appropriate reference
+  sections or omit them when the code makes them clear. Leave existing correct
+  prose untouched unless the code change makes it inaccurate.
 - Write comments and docstrings in the short, ordinary sentences the
   Communication rules ask for. Say what the code does in the order it happens,
   with a named actor and the literal verb, and state a limit or exclusion as its
