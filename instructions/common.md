@@ -171,9 +171,12 @@
   requirement, relevant version, revision, or primary-source fact changed, or
   when the earlier search left a specific behavior unverified. Compare each
   candidate's exact behavior, lifecycle, dependency cost, and adaptation cost
-  with a direct implementation. Reuse it when it fits; keep domain policy local
-  when a generic dependency would leave the same policy or add more translation
-  than it removes.
+  with a direct implementation. For each reason to reject a candidate, name the
+  affected current consumer or the verified maintenance or compatibility cost,
+  cite the supporting evidence, and check whether a thin adapter covers the gap.
+  Mark an untested mismatch as unresolved. Reuse it when it fits; keep domain
+  policy local when a generic dependency would leave the same policy or add more
+  translation than it removes.
 - Before writing production code, trace the shipped entry point, current
   consumers, sibling implementations, and import boundaries. Decide which
   module owns each policy, state transition, and external effect, and which
