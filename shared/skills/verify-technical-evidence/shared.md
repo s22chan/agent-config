@@ -15,8 +15,10 @@ intermediate operation is not evidence when later reassignment, masking,
 normalization, or control flow can discard its result. Use a minimal input that
 makes competing interpretations produce different observable results.
 
-Treat findings and proposed remedies from subagents and other review entry
-points as claims. Inspect the cited code, nearby rationale, owning tests, and
+Treat findings and proposed remedies from subagents, people, and other review
+entry points as claims, including the premise a suggested patch rests on. Check
+that premise against the code or data before editing, not after. Inspect the
+cited code, nearby rationale, owning tests, and
 relevant prior fixes before relaying them. Route a finding that would remove or
 replace established behavior, or contradict its stated rationale, through
 the applicable grill workflow for history and evidence. When a concern recurs
