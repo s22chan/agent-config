@@ -43,6 +43,10 @@ same name, except for these command adapters:
   few comparisons the reader needs, such as "it alerts in 11 jobs instead of 4".
   Fluency in the stack does not cover terms invented in the session; standard
   terms the reader already uses, such as median or percentile, need no definition.
+- The first time a reply mentions a group of cases, a rule, or an event from your
+  own analysis, describe it in full in that sentence, by what defines it and not
+  by the label you used while working. A short reference is fine afterward. Write
+  an abbreviated technical term out in full once.
 - State mechanisms and measured effects plainly. Use the literal verb for what
   happens. Avoid promotional language and unsupported claims about intent.
 - Weight structure by importance. Use short paragraphs or parallel bullets for
