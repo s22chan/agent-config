@@ -59,6 +59,46 @@ astral plugin, the earlier arms under default sources with hooks disabled, so th
 arms are not strictly matched. The hook fixes tool choice; it does not make the
 trace of what each caller does complete.
 
+## Follow-up: shell parsing false positives and misses
+
+Observed trigger. While the hook was live, it denied three Bash commands that
+were not Python symbol searches, and the user asked "is the LSP rule worth the
+false positives". The denied commands were a `grep -E "Passed|Failed|rror"`
+filter on a commit's output with a `;` glued to the closing quote, a count
+`n=$(git show REV:file | rg -c "name|other" )` with a space before the closing
+parenthesis, and a Python heredoc whose body held example search commands.
+
+Cause. `shlex.split` leaves `;` and `)` attached to the word before them, so
+the filter was read as a search over a file path, and a command after a glued
+`;` or inside `$(` was never recognised as a search at all. The guard also took
+a redirection target for a search path and the body of a heredoc for commands.
+
+What the guard did: denied the three commands above, and allowed
+`n=$(rg -c symbol src)` and `echo x; rg symbol src` although both search
+Python code. What it should do: allow a filter on another command's output
+however it is punctuated, deny a symbol search wherever it sits in the line,
+and ignore heredoc text and redirection targets.
+
+Change. `shell_tokens` tokenizes with `shlex.shlex(punctuation_chars=True)` so
+`;`, `|`, `(`, `)` and redirections are their own tokens, drops heredoc
+bodies, treats a newline as a command end, and removes a file descriptor glued
+to a redirection (`2>&1`). `.github` joins the non-code paths because the
+replay showed `.github/workflows` denied.
+
+Arms, with the same test file on both hooks. The old hook failed 5 of 11 tests
+(four new, plus the `.github` case); the patched hook passes all 11, and the
+seven original tests pass on it unchanged. Replay of 1,055 distinct commands
+containing grep, rg, ag or ack from the last twelve sessions in one repository:
+1,011 decisions unchanged, 7 deny to allow (all pipe filters or heredoc text),
+37 allow to deny, which is 20 distinct commands: 19 symbol or definition
+searches that the old parser had let through and the `.github/workflows` case
+the path list now covers.
+
+Caveats. The 20 new denials were judged from the matched segment and its
+targets, not by running each search. The replay covers search-like commands
+only, so it cannot show a change for other commands. The guard is still
+lexical: a search built inside a variable or a script file is not seen.
+
 ## Outcome
 
 Hook added to the sources and not activated: `~/agent-config/bootstrap.sh` links

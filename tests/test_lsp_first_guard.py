@@ -120,8 +120,39 @@ class LspFirstGuardTest(unittest.TestCase):
             self.run_hook("Glob", {"pattern": "**/*.md"}),
             self.bash("tail -n 500 job.log | grep create_submitit_executor"),
             self.bash("cat job.log | rg -n create_submitit_executor"),
+            self.bash("git grep -n create_submitit_executor -- .github/workflows"),
         ):
             self.assertEqual(decision[0], "allow")
+
+    def test_a_filter_on_another_commands_output_is_allowed_whatever_follows_it(self):
+        for decision in (
+            self.bash('git log 2>&1 | grep -E "Passed|create_submitit_executor|rror"; echo done'),
+            self.bash('git log | rg -c "create_submitit_executor"; echo $?'),
+            self.bash('n=$(git show HEAD:mod.py | rg -c "create_submitit_executor" )'),
+            self.bash("n=$(git show HEAD:mod.py | rg -c create_submitit_executor)"),
+            self.bash("(git log | grep create_submitit_executor) && echo ok"),
+        ):
+            self.assertEqual(decision[0], "allow")
+
+    def test_a_redirection_target_is_not_a_search_path(self):
+        self.assertEqual(self.bash("rg create_submitit_executor notes.md > out.txt")[0], "allow")
+        self.assertEqual(self.bash("rg create_submitit_executor notes.md 2>&1 | head")[0], "allow")
+
+    def test_text_inside_a_heredoc_is_not_a_command(self):
+        script = "python3 - <<'EOF'\nprint('rg create_submitit_executor src')\nrg create_submitit_executor src\nEOF\n"
+        self.assertEqual(self.bash(script)[0], "allow")
+        self.assertEqual(self.bash(script + "rg create_submitit_executor src")[0], "deny")
+
+    def test_a_symbol_search_still_denies_after_a_separator_or_inside_a_substitution(self):
+        for decision in (
+            self.bash("rg create_submitit_executor src; echo done"),
+            self.bash("rg create_submitit_executor projects > out.txt"),
+            self.bash("rg create_submitit_executor projects 2>&1 | head"),
+            self.bash("n=$(rg -c create_submitit_executor src)"),
+            self.bash("(cd x && rg create_submitit_executor src)"),
+            self.bash("echo x; rg create_submitit_executor src && echo ok"),
+        ):
+            self.assertEqual(decision[0], "deny")
 
     def test_a_call_it_cannot_parse_is_allowed(self):
         self.assertEqual(self.bash("rg 'unterminated create_submitit_executor")[0], "allow")

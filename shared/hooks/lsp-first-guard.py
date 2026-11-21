@@ -21,7 +21,7 @@ NON_CODE_EXT = (
     "md|txt|log|json|jsonl|yaml|yml|toml|ini|cfg|env|csv|tsv|sql|sh|css|html|xml|rst|lock"
 )
 NON_CODE_PATH = re.compile(
-    r"(^|/)(\.claude|\.git|\.pixi|node_modules|docs?|logs?)(/|$)|\.(" + NON_CODE_EXT + r")$"
+    r"(^|/)(\.claude|\.git|\.github|\.pixi|node_modules|docs?|logs?)(/|$)|\.(" + NON_CODE_EXT + r")$"
 )
 SEARCH_COMMANDS = {"grep", "egrep", "fgrep", "rg", "ag", "ack"}
 FLAGS_WITH_VALUE = {
@@ -112,17 +112,42 @@ def deny(symbols):
     }}))
 
 
+SHELL_PUNCTUATION = set("();<>|&")
+HEREDOC = re.compile(r"<<-?\s*(['\"]?)(\w+)\1[^\n]*\n.*?\n[ \t]*\2[ \t]*(?:\n|$)", re.DOTALL)
+FILE_DESCRIPTOR = re.compile(r"(?<![\w.-])\d+(?=[<>])")
+
+
+def shell_tokens(command):
+    """Split a command into words, with separators and redirections as their own tokens.
+
+    A heredoc body is text for another program, so it is dropped. A newline ends a command,
+    and a number glued to a redirection (`2>&1`) is a file descriptor, not a path.
+    """
+    command = HEREDOC.sub(lambda match: match.group(0).split("\n", 1)[0] + "\n", command)
+    command = FILE_DESCRIPTOR.sub("", command)
+    lexer = shlex.shlex(command.replace("\n", " ; "), posix=True, punctuation_chars=True)
+    lexer.whitespace_split = True
+    try:
+        return list(lexer)
+    except ValueError:
+        return None
+
+
 def bash_searches(command):
     """Yield (pattern, glob, type, paths) for each grep-like segment."""
-    try:
-        tokens = shlex.split(command, posix=True)
-    except ValueError:
+    tokens = shell_tokens(command)
+    if tokens is None:
         return
-    segments, current, piped = [], [], False
+    segments, current, piped, skip_target = [], [], False, False
     for token in tokens:
-        if token in {"|", ";", "&&", "||", "&"}:
-            segments.append((current, piped))
-            current, piped = [], token == "|"
+        if skip_target:
+            skip_target = False
+        elif set(token) <= SHELL_PUNCTUATION:
+            if "<" in token or ">" in token:
+                skip_target = True  # a redirection's target is not a search path
+            else:
+                segments.append((current, piped))
+                current, piped = [], token in {"|", "|&"}
         else:
             current.append(token)
     segments.append((current, piped))
