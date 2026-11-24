@@ -32,6 +32,17 @@ Make each commit describe its final diff as if read fresh on the target branch.
   body at 72 columns.
 - Use plain, concrete language. Prefer short sentences and familiar words;
   keep technical terms only when they name the concept precisely.
+- When a commit fixes a failure, write the opening for a maintainer who knows
+  the language and tooling but not this component. First say what the affected
+  part does and what it is for, then name the setting or rule that went wrong.
+  Take that description only from the diff or the working notes; when they do
+  not say what the component does, do not describe it. Write each component,
+  resource, and setting name exactly as the diff or notes spell it. Explain each
+  project-specific name where it first appears. Tell the failure as a sequence
+  of events with concrete values, and give measurements after it. When no
+  failure was observed, state the condition that triggers it and mark each value
+  as expected, not measured. Any other commit needs at most one sentence of
+  purpose.
 - Before describing mechanics, state why the commit should exist in terms of
   the concrete benefit or avoided failure for a user, operator, reviewer, or
   maintainer. Name the observable outcome, supported contract, or maintenance
@@ -129,6 +140,13 @@ Make each commit describe its final diff as if read fresh on the target branch.
   the trigger or emitted failure with a generic reliability or correctness
   claim. Require the exact triggering scenario and observable error, including
   the exception type or message when known, before explaining the cause and fix.
+- For a commit that fixes a failure, fail verification when the opening uses a
+  project-specific name before explaining it, gives a measurement before the
+  events it measures, or states a fact about a component that neither the diff
+  nor the notes support.
+- Before committing, list every capitalized or code-formatted name in the
+  message and search the staged diff and working notes for each exact string.
+  Replace or remove any name that is not found.
 - Fail verification when the opening body paragraph does not answer why the
   commit should land, or when it only restates the subject, edited symbols,
   implementation actions, desired properties, or compatibility boundaries.
