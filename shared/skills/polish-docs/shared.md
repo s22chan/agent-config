@@ -32,7 +32,11 @@ code fresh.
    established markup, comment, and docstring conventions.
 
 Choose the reader before editing; default to a senior engineer fluent in the
-stack. Prefer a concrete subject, action, input, and observable result. Keep a
+stack but new to this component. For that reader, say what the code is for in
+plain words before naming the rule, field, or threshold it applies, and gloss
+each project-specific name the first time it appears in a block. Say each
+point once: cut a clause that restates the words of the clause before it.
+Prefer a concrete subject, action, input, and observable result. Keep a
 specialist term only when readers need it to operate an API or tool, reproduce a
 procedure, or distinguish cases that plain language would merge. Preserve
 literal identifiers, commands, metrics, and external fields.

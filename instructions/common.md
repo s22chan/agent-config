@@ -114,6 +114,9 @@
   own sentence naming the case. Do not use a verdict or label word, such as
   "handled", "supported", or "robust", where the action can be stated; use a
   technical term only when readers of that API already use it.
+- Before handing off a change that adds or rewrites comments or docstrings,
+  review that prose with the `polish-docs` workflow, limited to the prose the
+  change adds or rewrites.
 - Match an existing Python file's majority docstring convention when editing
   it. For a newly created file, or one with no established convention, use
   modern Google-style docstrings (`Args:`, `Returns:`, and `Raises:` only when
